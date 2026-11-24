@@ -107,7 +107,7 @@ export function compileWorkbenchNetlist(
     }
   }
 
-  // 3. Auto-plug pins that sit directly on top of breadboard holes (within 8px)
+  // 3. Auto-plug pins that sit directly on top of breadboard holes (nearest hole within 9px)
   if (breadboards.length > 0) {
     const bbHoles: { key: string; x: number; y: number }[] = [];
     for (const bb of breadboards) {
@@ -122,12 +122,15 @@ export function compileWorkbenchNetlist(
       const def = COMPONENT_CATALOG[comp.type];
       for (const p of def.pins) {
         const pos = getPinWorldPos(comp, p.id);
+        let bestHole: { key: string; dist: number } | null = null;
         for (const hole of bbHoles) {
           const dist = Math.hypot(pos.x - hole.x, pos.y - hole.y);
-          if (dist <= 8) {
-            uf.union(pinKey(comp.id, p.id), hole.key);
-            break;
+          if (dist <= 9 && (!bestHole || dist < bestHole.dist)) {
+            bestHole = { key: hole.key, dist };
           }
+        }
+        if (bestHole) {
+          uf.union(pinKey(comp.id, p.id), bestHole.key);
         }
       }
     }
@@ -312,6 +315,38 @@ export function compileWorkbenchNetlist(
     lines.push(`Rgmin${gIdx++} ${node} 0 100Meg`);
   }
 
+  // Warn if any non-breadboard component has a completely isolated pin (no wire & not plugged into breadboard)
+  const rootCounts = new Map<string, number>();
+  for (const c of components) {
+    for (const p of COMPONENT_CATALOG[c.type].pins) {
+      const r = uf.find(pinKey(c.id, p.id));
+      rootCounts.set(r, (rootCounts.get(r) ?? 0) + 1);
+    }
+  }
+  for (const c of components) {
+    if (c.type === "breadboard" || c.type === "ground") continue;
+    const def = COMPONENT_CATALOG[c.type];
+    const unpluggedPins = def.pins.filter((p) => {
+      if (c.type === "oscilloscope" && (p.id === "ch2_pos" || p.id === "ch2_neg")) {
+        // CH2 is optional if CH1 is wired
+        const ch2p = rootCounts.get(uf.find(pinKey(c.id, "ch2_pos"))) ?? 1;
+        const ch2n = rootCounts.get(uf.find(pinKey(c.id, "ch2_neg"))) ?? 1;
+        if (ch2p === 1 && ch2n === 1) return false;
+      }
+      return (rootCounts.get(uf.find(pinKey(c.id, p.id))) ?? 1) <= 1;
+    });
+    if (unpluggedPins.length > 0 && c.type !== "oscilloscope") {
+      warnings.push(`${def.shortName} has unconnected terminal(s): ${unpluggedPins.map((p) => p.label).join(", ")}`);
+    } else if (c.type === "oscilloscope") {
+      const ch1Unplugged = ["ch1_pos", "ch1_neg"].some(
+        (id) => (rootCounts.get(uf.find(pinKey(c.id, id))) ?? 1) <= 1
+      );
+      if (ch1Unplugged) {
+        warnings.push("Oscilloscope CH1 probe is not fully connected.");
+      }
+    }
+  }
+
   // Ensure at least one element exists
   if (usedNodes.size === 0) {
     lines.push("Rdummy 0 0 1k");
@@ -463,6 +498,22 @@ export function simulateWorkbench(
           value: Number(Math.abs(avgMa).toFixed(3)),
           unit: "mA",
           mode: "current",
+        };
+      } else if (c.props.mode === "voltage_ac") {
+        const np = getNodeSeries(pinToNode.get(pinKey(c.id, "pos")) ?? "0");
+        const nn = getNodeSeries(pinToNode.get(pinKey(c.id, "neg")) ?? "0");
+        const diff: number[] = [];
+        for (let i = startIdx; i < len; i++) {
+          diff.push((np[i] ?? 0) - (nn[i] ?? 0));
+        }
+        const rmsV = diff.length
+          ? Math.sqrt(diff.reduce((a, b) => a + b * b, 0) / diff.length)
+          : 0;
+        multimeters[c.id] = {
+          compId: c.id,
+          value: Number(rmsV.toFixed(3)),
+          unit: "Vrms",
+          mode: "voltage_ac",
         };
       } else {
         const np = getNodeSeries(pinToNode.get(pinKey(c.id, "pos")) ?? "0");

@@ -62,18 +62,19 @@ export function ExperimentWorkspace({
   const [showNetlist, setShowNetlist] = useState<boolean>(false);
   const [openHints, setOpenHints] = useState<Record<string, boolean>>({});
 
-  // Reset params and table when switching experiment
-  useEffect(() => {
+  const [prevExpId, setPrevExpId] = useState(experiment.id);
+  if (prevExpId !== experiment.id) {
+    setPrevExpId(experiment.id);
     setParams(getDefaultParams(experiment));
     setRecordedRows([]);
     setOpenHints({});
-  }, [experiment]);
+  }
 
   // Run ngspice simulation when params change
   useEffect(() => {
     let cancelled = false;
-    setIsLoading(true);
     const timer = setTimeout(async () => {
+      setIsLoading(true);
       try {
         const res = await runCircuitSimulation(experiment.id, params);
         if (cancelled) return;

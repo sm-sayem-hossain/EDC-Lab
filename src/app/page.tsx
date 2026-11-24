@@ -12,12 +12,15 @@ export default function HomePage() {
   const [readyViva, setReadyViva] = useState<string[]>([]);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setReadyViva(JSON.parse(saved) as string[]);
-    } catch {
-      // Ignore storage errors
-    }
+    const timer = setTimeout(() => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setReadyViva(JSON.parse(saved) as string[]);
+      } catch {
+        // Ignore storage errors
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleToggleVivaReady = (id: string) => {

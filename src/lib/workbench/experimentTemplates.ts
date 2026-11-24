@@ -11,8 +11,8 @@ export const WIRE_COLORS = [
 // Breadboard placed consistently at (240, 212) so every experiment is built ON the breadboard!
 // Column c (1..18) worldX = 240 + 28 + (c - 1)*16 = 268 + (c - 1)*16
 // Top strip rows a..e: y = 266, 282, 298, 314, 330
-// Bot strip rows f..j: y = 360, 376, 392, 408, 424
-// Bottom rails: bp = 446, bn = 460
+// Bot strip rows f..j: y = 362, 378, 394, 410, 426
+// Bottom rails: bp = 448, bn = 462
 const BB_X = 240;
 const BB_Y = 212;
 const bbColX = (c: number) => BB_X + 28 + (c - 1) * 16;
@@ -26,7 +26,7 @@ const BASE_BB: PlacedComponent = {
   props: {},
 };
 
-// Helper to place horizontal 2-pin component spanning from col `c` across the breadboard row `rowY`
+// Place 2-pin components so pins land at exact 0.0px alignment on breadboard holes
 function placeOnBB(
   id: string,
   type: PlacedComponent["type"],
@@ -35,23 +35,32 @@ function placeOnBB(
   rotation: 0 | 90 | 180 | 270,
   props: Record<string, number | string>
 ): PlacedComponent {
-  if (type === "resistor" && rotation === 0) {
-    return { id, type, x: bbColX(col) - 4, y: rowY - 16, rotation, props };
-  }
-  if (type === "resistor" && rotation === 90) {
-    // vertical: center at bbColX(col), spans 80px vertically (e.g. from row c=298 to row g=376)
+  if (type === "resistor") {
+    if (rotation === 0 || rotation === 180) {
+      return { id, type, x: bbColX(col) - 4, y: rowY - 16, rotation, props };
+    }
+    // vertical: pins land at row c (298) and row g (378) -> center at 338
     return { id, type, x: bbColX(col) - 44, y: rowY - 16, rotation, props };
+  }
+  if (type === "inductor") {
+    if (rotation === 0 || rotation === 180) {
+      return { id, type, x: bbColX(col) - 4, y: rowY - 18, rotation, props };
+    }
+    // vertical: pins land at row c (298) and row g (378) -> center at 338
+    return { id, type, x: bbColX(col) - 44, y: rowY - 18, rotation, props };
   }
   if (type === "diode" || type === "zener") {
     if (rotation === 0 || rotation === 180) {
       return { id, type, x: bbColX(col) - 4, y: rowY - 16, rotation, props };
     }
-    return { id, type, x: bbColX(col) - 42, y: rowY - 16, rotation, props };
+    // vertical: pins land at row c (298) and row g (378) -> center at 338
+    return { id, type, x: bbColX(col) - 44, y: rowY - 16, rotation, props };
   }
-  if (type === "capacitor") {
-    if (rotation === 0) {
+  if (type === "capacitor" || type === "led") {
+    if (rotation === 0 || rotation === 180) {
       return { id, type, x: bbColX(col) - 4, y: rowY - 22, rotation, props };
     }
+    // vertical: 64px span -> pins land at row d (314) and row g (378) -> center at 346
     return { id, type, x: bbColX(col) - 36, y: rowY - 22, rotation, props };
   }
   return { id, type, x: bbColX(col), y: rowY, rotation, props };
@@ -59,23 +68,23 @@ function placeOnBB(
 
 export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   // =========================================================================
-  // EXP 01: Introduction to Electronic Devices and Circuits Lab (RLC + Scope)
+  // EXP 01: Introduction to Electronic Devices and Circuits Lab (R, C, L)
   // =========================================================================
   {
     id: "exp-1",
     number: "01",
-    shortTitle: "Instruments & RC",
+    shortTitle: "Instruments & RLC",
     title: "Introduction to Electronic Devices and Circuits Lab",
     objective:
-      "Connect the Function Generator and Oscilloscope to a Breadboard and observe Sine, Square, and RC phase-shift responses.",
+      "Operate the Trainer Board, Signal Generator (SFG-1002), and Dual-Channel Oscilloscope while observing Resistor, Capacitor, and Inductor AC responses.",
     steps: [
       {
         id: "exp1-s1",
-        title: "Step 1: Pure Resistive Circuit on Breadboard",
+        title: "Step 1: Pure Resistive Circuit (In Phase)",
         instruction:
-          "Place a 1 kOhm resistor across breadboard columns 3 to 8 (row C) and a 10 kOhm load from column 8 to ground rail. Feed 10 Vpp 1 kHz Sine to column 3.",
+          "Place a 1 kOhm resistor (col 3-8) and 10 kOhm load resistor (col 8 to GND). Feed 10 Vpp 1 kHz Sine from Signal Generator to col 3.",
         observation:
-          "CH1 (Input) and CH2 (Output) are completely in phase (0 deg phase shift).",
+          "CH1 (Input) and CH2 (Output) are completely in phase (0 deg phase shift), verifying Ohm's Law.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
@@ -95,17 +104,17 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
       },
       {
         id: "exp1-s2",
-        title: "Step 2: RC Phase-Shift Network (1 kHz Sine)",
+        title: "Step 2: RC Network (Current Leads Voltage)",
         instruction:
-          "Replace the vertical load resistor at column 8 with a 0.1 uF Capacitor to the ground rail.",
+          "Replace the vertical load at col 8 with a 0.1 uF Capacitor to the ground rail (10 Vpp, 1 kHz Sine).",
         observation:
-          "CH2 lags CH1 due to capacitive reactance (Xc = 1 / 2*pi*f*C) and amplitude drops slightly.",
+          "Capacitor causes current to lead voltage; CH2 voltage across C lags CH1 due to capacitive reactance Xc.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("c1", "capacitor", 8, 344, 90, { capacitance: 0.1 }),
+          placeOnBB("c1", "capacitor", 8, 346, 90, { capacitance: 0.1 }),
         ],
         wires: [
           { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
@@ -119,9 +128,33 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
       },
       {
         id: "exp1-s3",
-        title: "Step 3: Square Wave RC Charging Curve",
+        title: "Step 3: RL Network (Voltage Leads Current)",
         instruction:
-          "Switch the Function Generator to Square Wave (10 Vpp, 1 kHz) on the same breadboard RC circuit.",
+          "Swap the capacitor at col 8 for a 100 mH Inductor to the ground rail with 10 Vpp 1 kHz Sine input.",
+        observation:
+          "Inductor causes voltage to lead current; CH2 across L leads CH1 in phase (XL = 2*pi*f*L).",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("l1", "inductor", 8, 338, 90, { inductance: 100 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
+          { id: "w4", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+        ],
+      },
+      {
+        id: "exp1-s4",
+        title: "Step 4: Square Wave RC Transient",
+        instruction:
+          "Switch the Function Generator to Square Wave (10 Vpp, 1 kHz) on the RC network (1 kOhm + 0.1 uF).",
         observation:
           "CH2 displays exponential capacitor charging and discharging curves with time constant tau = R * C = 0.1 ms.",
         components: [
@@ -129,7 +162,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("c1", "capacitor", 8, 344, 90, { capacitance: 0.1 }),
+          placeOnBB("c1", "capacitor", 8, 346, 90, { capacitance: 0.1 }),
         ],
         wires: [
           { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
@@ -145,7 +178,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   },
 
   // =========================================================================
-  // EXP 02: I-V Characteristics of PN Junction Diode (Breadboard + Meters)
+  // EXP 02: I-V Characteristics of PN Junction Diode (Matches PDF Table 1 & 2)
   // =========================================================================
   {
     id: "exp-2",
@@ -153,15 +186,15 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Diode I-V Curve",
     title: "I-V Characteristics of PN Junction Diode",
     objective:
-      "Build the Silicon 1N4007 forward and reverse bias test circuit on a breadboard and record Vd and Id using Multimeters.",
+      "Measure forward and reverse bias current-voltage characteristics of a PN junction diode with R = 1 kOhm using Ammeter and Voltmeter.",
     steps: [
       {
         id: "exp2-s1",
         title: "Step 1: Forward Bias Below Knee (0.5 V)",
         instruction:
-          "Wire DC Power Supply (0.5 V) -> Ammeter -> 1 kOhm Resistor (col 3-8) -> 1N4007 Diode (col 8-13) -> Ground rail. Place Voltmeter across Diode.",
+          "Wire DC Power Supply (0.5 V) -> Ammeter -> 1 kOhm Resistor (col 3-8) -> 1N4007 Diode (col 8-13) -> Ground rail. Voltmeter across Diode.",
         observation:
-          "At Vdc = 0.5 V, diode voltage Vd is ~0.44 V and current Id is tiny (< 0.1 mA) because it is below the Silicon knee.",
+          "PDF Table 1 match: At Vdc = 0.5 V, Vd is ~0.42-0.44 V and Id is tiny (< 0.1 mA) below the 0.6-0.7 V threshold.",
         components: [
           BASE_BB,
           { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0.5 } },
@@ -181,11 +214,35 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
       },
       {
         id: "exp2-s2",
-        title: "Step 2: Forward Bias Conduction (3.0 V)",
+        title: "Step 2: Forward Bias Knee (1.0 V)",
         instruction:
-          "Raise DC Power Supply to 3.0 V on the same breadboard circuit and check both Multimeter displays.",
+          "Raise DC Power Supply to 1.0 V on the same circuit and inspect Vd and Id.",
         observation:
-          "Diode overcomes the barrier: Vd stays near ~0.60 V while Id jumps to ~2.4 mA (matching your lab report table!).",
+          "PDF Table 1 match: At Vdc = 1.0 V, Vd reaches ~0.50 V and Id rises to ~0.50 mA (VR ~ 0.50 V).",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 1.0 } },
+          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
+          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#27272a" },
+          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#78716c" },
+        ],
+      },
+      {
+        id: "exp2-s3",
+        title: "Step 3: Forward Bias Conduction (3.0 V)",
+        instruction:
+          "Raise DC Power Supply to 3.0 V and check both Multimeter displays.",
+        observation:
+          "PDF Table 1 match: Vd stays near ~0.58-0.60 V while Id jumps to ~2.42 mA (VR ~ 2.42 V).",
         components: [
           BASE_BB,
           { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 3.0 } },
@@ -204,15 +261,15 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         ],
       },
       {
-        id: "exp2-s3",
-        title: "Step 3: Reverse Bias Blocking (5.0 V)",
+        id: "exp2-s4",
+        title: "Step 4: Reverse Bias Blocking (3.0 V)",
         instruction:
-          "Flip the 1N4007 Diode 180 degrees on the breadboard (Cathode on column 8, Anode on column 13) and set DC Supply to 5.0 V.",
+          "Flip the 1N4007 Diode 180 degrees (Cathode on col 8, Anode on col 13) with DC Supply at 3.0 V.",
         observation:
-          "Diode blocks current: Ammeter reads 0.00 mA and the full 5.00 V supply voltage drops across the diode.",
+          "PDF Table 2 match: Diode blocks current (Id = 0.00 mA) and the full 3.00 V supply voltage drops across the diode.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 5.0 } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 3.0 } },
           { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
           { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
@@ -231,7 +288,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   },
 
   // =========================================================================
-  // EXP 03: Study of Zener Diode Applications (Voltage Regulator on Breadboard)
+  // EXP 03: Study of Zener Diode Applications (Matches PDF R=456 Ohm, Vz=8.92V)
   // =========================================================================
   {
     id: "exp-3",
@@ -239,76 +296,94 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Zener Regulator",
     title: "Study of Zener Diode Applications",
     objective:
-      "Wire a 5.1 V Zener diode in reverse bias on the breadboard with a 470 Ohm series resistor and 10 kOhm load to verify voltage regulation.",
+      "Wire the reverse-biased 8.9 V Zener diode with R = 456 Ohm on the breadboard to verify breakdown characteristics and load voltage regulation.",
     steps: [
       {
         id: "exp3-s1",
-        title: "Step 1: Below Breakdown (Vin = 3.0 V)",
+        title: "Step 1: Below Breakdown (Vin = 5.0 V)",
         instruction:
-          "Place 470 Ohm resistor (col 3-8), reverse-biased 5.1 V Zener across col 8 to ground strip, and 10 kOhm load at col 11. Set DC Supply to 3.0 V.",
+          "Place 456 Ohm resistor (col 3-8) and reverse-biased 8.9 V Zener across col 8 to ground rail. Set DC Supply to 5.0 V.",
         observation:
-          "Since Vin (3.0 V) < Vz (5.1 V), the Zener does not conduct and Vout simply follows Vin (~2.87 V).",
+          "PDF Table match: Since Vin (5.0 V) < Vz (8.9 V), Zener blocks reverse current (Iz = 0.00 mA) and Vz follows Vin (5.00 V).",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 3.0 } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 5.0 } },
           { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
           { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 470 }),
-          placeOnBB("z1", "zener", 8, 338, 270, { vz: 5.1 }),
-          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 10000 }),
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
         ],
         wires: [
           { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
           { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
-          { id: "w4", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w5", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
-          { id: "w6", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w7", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#475569" },
-          { id: "w8", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
+          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
         ],
       },
       {
         id: "exp3-s2",
-        title: "Step 2: Active Regulation (Vin = 10.0 V)",
+        title: "Step 2: Zener Breakdown (Vin = 12.0 V)",
         instruction:
-          "Increase DC Power Supply to 10.0 V. The Zener enters reverse breakdown and stabilizes the load node.",
+          "Increase DC Power Supply to 12.0 V. The 8.92 V Zener enters reverse breakdown and clamps Vz.",
         observation:
-          "Voltmeter locks right around ~5.1 V while excess voltage drops across the 470 Ohm series resistor (~10.4 mA).",
+          "PDF Table match: Voltmeter regulates near ~8.9 V (PDF: 9.06 V) while Ammeter reads Iz ~ 6.7 mA (PDF: 5.94 mA).",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 10.0 } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 12.0 } },
           { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
           { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 470 }),
-          placeOnBB("z1", "zener", 8, 338, 270, { vz: 5.1 }),
-          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 10000 }),
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
         ],
         wires: [
           { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
           { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
-          { id: "w4", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w5", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
-          { id: "w6", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w7", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#475569" },
-          { id: "w8", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
+          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
         ],
       },
       {
         id: "exp3-s3",
-        title: "Step 3: High Input Regulation (Vin = 15.0 V)",
+        title: "Step 3: High Input (Vin = 15.0 V)",
         instruction:
-          "Raise DC Power Supply to 15.0 V to confirm line regulation under higher supply voltage.",
+          "Raise DC Power Supply to 15.0 V to confirm Zener voltage stability as input increases.",
         observation:
-          "Even with a +5 V jump in Vin, the regulated output holds steady near ~5.1 V while Zener current absorbs the change.",
+          "PDF Table match: Vz holds near ~8.9-9.2 V while Iz rises to ~13 mA (PDF: Vz = 9.23 V, Iz = 12.46 mA).",
         components: [
           BASE_BB,
           { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 15.0 } },
           { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
           { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 470 }),
-          placeOnBB("z1", "zener", 8, 338, 270, { vz: 5.1 }),
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
+          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+        ],
+      },
+      {
+        id: "exp3-s4",
+        title: "Step 4: Loaded Voltage Regulator (with RL)",
+        instruction:
+          "Connect a 10 kOhm load resistor RL at col 11 in parallel with the Zener diode (PDF Report Question #3).",
+        observation:
+          "Load voltage Vout stays regulated at ~8.9 V across RL while excess input voltage drops across R.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 15.0 } },
+          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
+          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 10000 }),
         ],
         wires: [
@@ -326,7 +401,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   },
 
   // =========================================================================
-  // EXP 04: Half-Wave Diode Rectifier on Breadboard
+  // EXP 04: Half-Wave Diode Rectifier (Matches PDF Table: 19 Vpp -> Vmax 8.8V)
   // =========================================================================
   {
     id: "exp-4",
@@ -340,12 +415,12 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         id: "exp4-s1",
         title: "Step 1: Unfiltered Half-Wave Output",
         instruction:
-          "Place 1N4007 diode across col 3-8 and 1 kOhm load resistor from col 8 to ground rail. Feed 10 Vpp 1 kHz Sine to col 3.",
+          "Place 1N4007 diode across col 3-8 and 1 kOhm load resistor from col 11 to ground rail. Feed 19 Vpp (9.5 V peak) 1 kHz Sine to col 3.",
         observation:
-          "Only positive half-cycles pass (Vmax ~4.3 V, Vmin = 0 V, Ripple Factor ~1.21).",
+          "PDF Table match: Only positive half-cycles pass (Vmax ~8.80 V, Vrms ~4.35 V, Vavg ~2.75 V, Ripple ~1.24).",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 19, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 1000 }),
@@ -365,15 +440,15 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         id: "exp4-s2",
         title: "Step 2: Add 1 uF Filter Capacitor",
         instruction:
-          "Insert a 1 uF filter capacitor on column 8 in parallel with the 1 kOhm load resistor.",
+          "Insert a 1 uF filter capacitor on col 8 in parallel with the 1 kOhm load resistor.",
         observation:
-          "A sawtooth ripple waveform appears on CH2; Vmin rises above 0 V and Ripple Factor drops sharply.",
+          "Sawtooth ripple waveform appears on CH2; Vmin rises sharply and Ripple Factor drops below 0.3.",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 19, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
-          placeOnBB("c1", "capacitor", 8, 344, 90, { capacitance: 1 }),
+          placeOnBB("c1", "capacitor", 8, 346, 90, { capacitance: 1 }),
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 1000 }),
         ],
         wires: [
@@ -392,15 +467,42 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         id: "exp4-s3",
         title: "Step 3: Smooth DC with 10 uF Capacitor",
         instruction:
-          "Swap the breadboard filter capacitor to 10 uF and check Vavg and Ripple Factor on the Oscilloscope.",
+          "Swap the filter capacitor to 10 uF and observe Vavg, Vmin, and Ripple Factor on the Oscilloscope.",
         observation:
-          "CH2 becomes nearly flat DC (~4.1 V average) with very small ripple (< 0.04).",
+          "PDF Table match: Vmax ~8.7 V, Vmin ~8.0 V, Vavg ~8.35 V, Ripple ~0.03 (smooth DC).",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 19, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
-          placeOnBB("c1", "capacitor", 8, 344, 90, { capacitance: 10 }),
+          placeOnBB("c1", "capacitor", 8, 346, 90, { capacitance: 10 }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w3", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
+          { id: "w4", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
+          { id: "w5", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#4d5d46" },
+          { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+        ],
+      },
+      {
+        id: "exp4-s4",
+        title: "Step 4: Ultra-Smooth DC with 47 uF Capacitor",
+        instruction:
+          "Increase the filter capacitor to 47 uF for minimal ripple.",
+        observation:
+          "Higher capacitance reduces ripple factor below 0.01 and yields steady DC near ~8.6 V.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 19, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("c1", "capacitor", 8, 346, 90, { capacitance: 47 }),
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 1000 }),
         ],
         wires: [
@@ -419,7 +521,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   },
 
   // =========================================================================
-  // EXP 05: Full-Wave Bridge Diode Rectifier on Breadboard
+  // EXP 05: Full-Wave Bridge Rectifier (Matches PDF Table: 20 Vpp -> Vmax 8.6V)
   // =========================================================================
   {
     id: "exp-5",
@@ -427,40 +529,35 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Full-Wave Bridge",
     title: "Study of Full-Wave Bridge Diode Rectifier Circuit",
     objective:
-      "Build a 4-diode 1N4007 Bridge Rectifier on the breadboard and compare Unfiltered vs 0.47 uF vs 10 uF filtering.",
+      "Build a 4-diode 1N4007 Bridge Rectifier on the breadboard and compare Unfiltered, 0.47 uF, 10 uF, and 47 uF filtering.",
     steps: [
       {
         id: "exp5-s1",
-        title: "Step 1: Unfiltered 4-Diode Bridge on Breadboard",
+        title: "Step 1: Unfiltered 4-Diode Bridge",
         instruction:
-          "Wire D1 (col 3->8, row B), D2 (col 4->9, row D), D3 (col 8->3, row G), D4 (col 9->4, row I) on the breadboard. Feed AC+ to col 3, AC- to col 4, and connect DC+ (col 8/9) across 1 kOhm load to GND.",
+          "Wire D1 (col 3->8, row B), D2 (col 4->9, row D), D3 (col 8->3, row G), D4 (col 9->4, row I). Feed 20 Vpp 1 kHz Sine across col 3 & 4.",
         observation:
-          "Both half cycles are rectified (double frequency 2 kHz pulses, Vmax ~3.6 V due to 2 diode drops, ripple ~0.48).",
+          "PDF Table match: Both half cycles rectify at 2 kHz (Vmax ~8.6 V, Vrms ~5.8 V, Vavg ~5.0 V, Ripple ~0.55).",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
           placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
-          placeOnBB("d3", "diode", 3, 376, 180, { material: "si" }),
-          placeOnBB("d4", "diode", 4, 408, 180, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
           placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
         ],
         wires: [
-          // AC+ to col 3 (top & bottom)
           { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
           { id: "w2", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#8c4a3c" },
-          // AC- to col 4 (top & bottom)
           { id: "w3", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#475569" },
           { id: "w4", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#475569" },
-          // DC+ joins D1 cathode (col 8) & D2 cathode (col 9) -> Load col 14
           { id: "w5", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#4d5d46" },
           { id: "w6", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#4d5d46" },
-          // DC- joins D3 anode (f8/g8) & D4 anode (i9) -> Ground rail
           { id: "w7", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
           { id: "w8", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#27272a" },
           { id: "w9", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#27272a" },
-          // Scope CH1 across AC input, CH2 across load
           { id: "w10", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#78716c" },
           { id: "w11", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#78716c" },
           { id: "w12", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#27272a" },
@@ -469,20 +566,92 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
       },
       {
         id: "exp5-s2",
-        title: "Step 2: Bridge with 10 uF Filter Capacitor",
+        title: "Step 2: Bridge with 0.47 uF Capacitor",
         instruction:
-          "Insert a 10 uF capacitor at column 12 in parallel with the 1 kOhm load resistor on the breadboard.",
+          "Add a 0.47 uF filter capacitor at col 12 in parallel with the 1 kOhm load resistor.",
         observation:
-          "Because the bridge recharges twice per cycle, 10 uF yields ultra-smooth DC with ripple factor < 0.02.",
+          "PDF Table match: Ripple drops significantly (Vmax ~8.5 V, Vavg ~6.7-7.7 V) as the bridge recharges twice per cycle.",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
           placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
-          placeOnBB("d3", "diode", 3, 376, 180, { material: "si" }),
-          placeOnBB("d4", "diode", 4, 408, 180, { material: "si" }),
-          placeOnBB("c1", "capacitor", 12, 344, 90, { capacitance: 10 }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("c1", "capacitor", 12, 346, 90, { capacitance: 0.47 }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#8c4a3c" },
+          { id: "w3", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#475569" },
+          { id: "w4", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#475569" },
+          { id: "w5", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#4d5d46" },
+          { id: "w6", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#4d5d46" },
+          { id: "w8", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
+          { id: "w9", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#27272a" },
+          { id: "w10", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#27272a" },
+          { id: "w11", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#27272a" },
+          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#78716c" },
+          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#78716c" },
+          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#27272a" },
+          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#27272a" },
+        ],
+      },
+      {
+        id: "exp5-s3",
+        title: "Step 3: Bridge with 10 uF Capacitor",
+        instruction:
+          "Increase the filter capacitor to 10 uF at col 12 and observe ripple collapse.",
+        observation:
+          "PDF Table match: Vavg stabilizes near ~8.2 V with tiny ripple (~0.01).",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("c1", "capacitor", 12, 346, 90, { capacitance: 10 }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#8c4a3c" },
+          { id: "w3", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#475569" },
+          { id: "w4", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#475569" },
+          { id: "w5", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#4d5d46" },
+          { id: "w6", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#4d5d46" },
+          { id: "w8", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
+          { id: "w9", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#27272a" },
+          { id: "w10", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#27272a" },
+          { id: "w11", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#27272a" },
+          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#78716c" },
+          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#78716c" },
+          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#27272a" },
+          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#27272a" },
+        ],
+      },
+      {
+        id: "exp5-s4",
+        title: "Step 4: Bridge with 47 uF Capacitor",
+        instruction:
+          "Use the 47 uF capacitor for the smoothest DC output.",
+        observation:
+          "PDF Table match: Vavg ~8.3 V with near-zero ripple (< 0.003), closely resembling pure DC.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("c1", "capacitor", 12, 346, 90, { capacitance: 47 }),
           placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
         ],
         wires: [
@@ -507,7 +676,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   },
 
   // =========================================================================
-  // EXP 06: Diode Clipper Circuits on Breadboard
+  // EXP 06: Diode Clipper Circuits (Matches PDF: 19.6 Vpp 1 kHz TRIANGLE Wave)
   // =========================================================================
   {
     id: "exp-6",
@@ -515,18 +684,18 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Diode Clipper",
     title: "Study of Diode Clipper Circuits",
     objective:
-      "Wire biased positive and negative diode clippers on the breadboard using a 19.6 Vpp 1 kHz Sine input and a 2.3 V DC bias supply.",
+      "Wire biased positive, negative, and dual diode clippers on the breadboard using a 19.6 Vpp 1 kHz Triangular wave (per lab report).",
     steps: [
       {
         id: "exp6-s1",
-        title: "Step 1: Biased Positive Clipper (+3.0 V Clip)",
+        title: "Step 1: Forward Biased Positive Clipper (+3.0 V)",
         instruction:
-          "Place 1 kOhm resistor (col 3-8) and vertical 1N4007 diode (col 8, Anode up, Cathode to col 8 bottom). Connect DC Supply (+2.3 V) to bottom of diode.",
+          "Place 1 kOhm resistor (col 3-8) and vertical 1N4007 diode (col 8, Anode up, Cathode down). Connect DC Supply (+2.3 V) to bottom of diode with 19.6 Vpp 1 kHz Triangle input.",
         observation:
-          "Positive peak clips flat near +3.0 V (2.3 V + 0.7 V) while negative half passes down to -9.8 V.",
+          "PDF Table match: Positive peak clips flat near +3.00 V (2.3 V + 0.7 V) while negative peak passes to -9.8 V (Vp-p ~ 12.8 V).",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 19.6, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
           { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
@@ -545,14 +714,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
       },
       {
         id: "exp6-s2",
-        title: "Step 2: Biased Negative Clipper (-3.2 V Clip)",
+        title: "Step 2: Reverse Biased Negative Clipper (-3.2 V)",
         instruction:
-          "Flip the Diode 180 deg (Cathode up at col 8) and reverse the DC Supply terminals so -2.5 V biases the diode anode.",
+          "Flip the Diode 180 deg (Cathode up at col 8) and reverse DC Supply terminals so -2.5 V biases the diode anode.",
         observation:
-          "Negative peak clips flat near -3.2 V while the positive peak passes cleanly up to +9.8 V.",
+          "PDF Table match: Negative peak clips flat near -3.20 V while the positive peak passes cleanly up to +9.8 V (Vp-p ~ 13.0 V).",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 19.6, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
           { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.5 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
@@ -569,11 +738,42 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w8", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
         ],
       },
+      {
+        id: "exp6-s3",
+        title: "Step 3: Dual Clipper (+1.7 V / -4.0 V, Q2)",
+        instruction:
+          "Add a second diode branch at col 11 with +1.0 V and -3.3 V DC biases on a 10 Vpp (5 V amplitude) input (PDF Report Q2).",
+        observation:
+          "Positive peaks clip at +1.7 V (1.0 + 0.7 V) and negative peaks clip at -4.0 V (-3.3 - 0.7 V).",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 1.0 } },
+          { id: "dc2", type: "dc-supply", x: 424, y: 38, rotation: 0, props: { voltage: 3.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+          placeOnBB("d2", "diode", 11, 338, 270, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w3", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
+          { id: "w4", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#8c4a3c" },
+          { id: "w5", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#27272a" },
+          { id: "w6", from: { compId: "dc2", pinId: "neg" }, to: { compId: "bb1", pinId: "j11" }, color: "#475569" },
+          { id: "w7", from: { compId: "dc2", pinId: "pos" }, to: { compId: "bb1", pinId: "bn_10" }, color: "#27272a" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
+          { id: "w9", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w10", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w11", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+        ],
+      },
     ],
   },
 
   // =========================================================================
-  // EXP 07: Diode Clamper Circuit on Breadboard
+  // EXP 07: Diode Clamper Circuit (Matches PDF: 1 kHz SQUARE Wave, 0.1 uF)
   // =========================================================================
   {
     id: "exp-7",
@@ -581,20 +781,20 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Diode Clamper",
     title: "Study of Diode Clamper Circuit",
     objective:
-      "Wire Positive and Negative Diode Clampers on the breadboard using a series 10 uF capacitor, shunt 1N4007 diode, and 100 kOhm resistor.",
+      "Shift a 1 kHz Square wave vertically upward or downward without altering its peak-to-peak shape using a 0.1 uF capacitor, 1N4007 diode, and 100 kOhm resistor.",
     steps: [
       {
         id: "exp7-s1",
         title: "Step 1: Positive Clamper (Shift Upward)",
         instruction:
-          "Place 10 uF Capacitor across col 3-7, vertical 1N4007 Diode at col 7 (Cathode up, Anode to ground), and 100 kOhm Load at col 11.",
+          "Place 0.1 uF Capacitor across col 3-7, vertical 1N4007 Diode at col 7 (Cathode up, Anode to ground), and 100 kOhm Load at col 11. Feed 10 Vpp 1 kHz Square wave.",
         observation:
-          "The 10 Vpp sine wave shifts upward without changing shape: Vmin sits near -0.7 V and Vmax reaches +9.3 V.",
+          "PDF Table match: The 10 Vpp square wave shifts upward without changing shape: Vmin sits near -0.6 V and Vmax reaches +9.4 V.",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 10 }),
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
         ],
@@ -614,14 +814,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         id: "exp7-s2",
         title: "Step 2: Negative Clamper (Shift Downward)",
         instruction:
-          "Flip the 1N4007 Diode 180 deg on column 7 (Anode up, Cathode to ground rail) on the breadboard.",
+          "Flip the 1N4007 Diode 180 deg on col 7 (Anode up, Cathode to ground rail) with the same Square wave input.",
         observation:
-          "The entire waveform shifts downward: Vmax clamps near +0.7 V and Vmin drops to -9.3 V while Vp-p stays 10 V.",
+          "The square wave shifts downward without distortion: Vmax clamps near +0.6 V and Vmin drops to -9.4 V while Vp-p stays 10 V.",
         components: [
           BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 10 }),
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 90, { material: "si" }),
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
         ],
@@ -635,6 +835,35 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
           { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#4d5d46" },
           { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+        ],
+      },
+      {
+        id: "exp7-s3",
+        title: "Step 3: Biased Positive Clamper (PDF Fig b)",
+        instruction:
+          "Connect a +2.0 V DC bias battery in series with the diode anode (col 7 bottom) to shift the square wave even further upward.",
+        observation:
+          "PDF Fig (b) match: Vmin shifts up to +1.4 V and Vmax reaches +11.4 V while Vp-p stays 10 V.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
+          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
+          { id: "w3", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
+          { id: "w4", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j7" }, color: "#8c4a3c" },
+          { id: "w5", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#27272a" },
+          { id: "w6", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w9", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#4d5d46" },
+          { id: "w10", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
         ],
       },
     ],

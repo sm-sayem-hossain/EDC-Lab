@@ -6,9 +6,9 @@ export const BB_ORIGIN_X = 28;
 export const BB_TOP_RAIL_POS_Y = 18;
 export const BB_TOP_RAIL_NEG_Y = 32;
 export const BB_TOP_ROWS_Y = [54, 70, 86, 102, 118]; // a..e
-export const BB_BOT_ROWS_Y = [148, 164, 180, 196, 212]; // f..j
-export const BB_BOT_RAIL_POS_Y = 234;
-export const BB_BOT_RAIL_NEG_Y = 248;
+export const BB_BOT_ROWS_Y = [150, 166, 182, 198, 214]; // f..j (32px gap across e->f = 2*16px)
+export const BB_BOT_RAIL_POS_Y = 236;
+export const BB_BOT_RAIL_NEG_Y = 250;
 
 function buildBreadboardPins(): PinDef[] {
   const pins: PinDef[] = [];
@@ -41,7 +41,7 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
     shortName: "Breadboard",
     category: "passive",
     width: BB_ORIGIN_X * 2 + (BB_COLS - 1) * BB_PITCH,
-    height: 268,
+    height: 270,
     pins: buildBreadboardPins(),
     defaultProps: {},
     properties: [],
@@ -59,7 +59,7 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
     ],
     defaultProps: { voltage: 5 },
     properties: [
-      { key: "voltage", label: "Voltage", unit: "V", type: "number", min: 0, max: 30, step: 0.1 },
+      { key: "voltage", label: "Voltage", unit: "V", type: "number", min: -30, max: 30, step: 0.1 },
     ],
   },
   "func-gen": {
@@ -123,7 +123,8 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
         label: "Mode",
         type: "select",
         options: [
-          { label: "Voltage (V)", value: "voltage" },
+          { label: "DC Voltage (V)", value: "voltage" },
+          { label: "AC Voltage (Vrms)", value: "voltage_ac" },
           { label: "Current (mA)", value: "current" },
         ],
       },
@@ -193,11 +194,11 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
     name: "PN Diode",
     shortName: "Diode",
     category: "semiconductors",
-    width: 84,
+    width: 88,
     height: 32,
     pins: [
       { id: "anode", label: "Anode (+)", x: 4, y: 16 },
-      { id: "cathode", label: "Cathode (-)", x: 80, y: 16 },
+      { id: "cathode", label: "Cathode (-)", x: 84, y: 16 },
     ],
     defaultProps: { material: "si" },
     properties: [
@@ -217,13 +218,13 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
     name: "Zener Diode",
     shortName: "Zener",
     category: "semiconductors",
-    width: 84,
+    width: 88,
     height: 32,
     pins: [
       { id: "anode", label: "Anode (+)", x: 4, y: 16 },
-      { id: "cathode", label: "Cathode (-)", x: 80, y: 16 },
+      { id: "cathode", label: "Cathode (-)", x: 84, y: 16 },
     ],
-    defaultProps: { vz: 5.1 },
+    defaultProps: { vz: 8.9 },
     properties: [
       { key: "vz", label: "Breakdown Vz", unit: "V", type: "number", min: 2.7, max: 24, step: 0.1 },
     ],
@@ -233,11 +234,11 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
     name: "LED",
     shortName: "LED",
     category: "semiconductors",
-    width: 68,
+    width: 72,
     height: 44,
     pins: [
       { id: "anode", label: "Anode (+)", x: 4, y: 22 },
-      { id: "cathode", label: "Cathode (-)", x: 64, y: 22 },
+      { id: "cathode", label: "Cathode (-)", x: 68, y: 22 },
     ],
     defaultProps: { vf: 2.0 },
     properties: [

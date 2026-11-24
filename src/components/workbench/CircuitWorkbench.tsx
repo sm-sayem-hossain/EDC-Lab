@@ -48,6 +48,54 @@ function snap(v: number, grid = 8): number {
   return Math.round(v / grid) * grid;
 }
 
+const BREADBOARD_MOUNTABLE = new Set<ComponentType>([
+  "resistor",
+  "capacitor",
+  "inductor",
+  "diode",
+  "zener",
+  "led",
+]);
+
+function snapToBreadboardHoles(
+  comp: PlacedComponent,
+  allComponents: PlacedComponent[],
+  threshold = 14
+): { x: number; y: number } {
+  if (!BREADBOARD_MOUNTABLE.has(comp.type)) {
+    return { x: snap(comp.x), y: snap(comp.y) };
+  }
+  const breadboards = allComponents.filter((c) => c.type === "breadboard");
+  if (breadboards.length === 0) {
+    return { x: snap(comp.x), y: snap(comp.y) };
+  }
+  const def = COMPONENT_CATALOG[comp.type];
+  const firstPin = def.pins[0];
+  if (!firstPin) return { x: snap(comp.x), y: snap(comp.y) };
+
+  const pin0 = getPinWorldPos(comp, firstPin.id);
+  let bestDx = 0;
+  let bestDy = 0;
+  let bestDist = Infinity;
+
+  for (const bb of breadboards) {
+    for (const hole of COMPONENT_CATALOG.breadboard.pins) {
+      const hp = getPinWorldPos(bb, hole.id);
+      const dist = Math.hypot(hp.x - pin0.x, hp.y - pin0.y);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestDx = hp.x - pin0.x;
+        bestDy = hp.y - pin0.y;
+      }
+    }
+  }
+
+  if (bestDist <= threshold) {
+    return { x: comp.x + bestDx, y: comp.y + bestDy };
+  }
+  return { x: snap(comp.x), y: snap(comp.y) };
+}
+
 function makeWirePath(x1: number, y1: number, x2: number, y2: number): string {
   const midY = (y1 + y2) / 2;
   return `M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
@@ -90,13 +138,14 @@ export function CircuitWorkbench() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [category, setCategory] = useState<"all" | ComponentCategory>("all");
   const [guideOpen, setGuideOpen] = useState<boolean>(true);
-  const [showScopeDrawer, setShowScopeDrawer] = useState<boolean>(true);
+  const [showScopeDrawer, setShowScopeDrawer] = useState<boolean>(false);
 
   const [simRunning, setSimRunning] = useState<boolean>(false);
   const [simLoading, setSimLoading] = useState<boolean>(false);
   const [simResult, setSimResult] = useState<WorkbenchSimResult | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const idCounterRef = useRef<number>(1);
 
   const activeTemplate = useMemo(
     () => EXPERIMENT_TEMPLATES.find((t) => t.id === activeExpId) ?? EXPERIMENT_TEMPLATES[0],
@@ -157,7 +206,6 @@ export function CircuitWorkbench() {
       setZoom(0.95);
       if (autoSimulate) {
         setSimRunning(true);
-        setShowScopeDrawer(true);
       }
     },
     [components, wires]
@@ -166,19 +214,15 @@ export function CircuitWorkbench() {
   // Run SPICE whenever simRunning is true and circuit changes
   useEffect(() => {
     if (!simRunning) {
-      setSimResult(null);
       return;
     }
     let cancelled = false;
-    setSimLoading(true);
     const timer = setTimeout(async () => {
+      setSimLoading(true);
       try {
         const res = await simulateWorkbench(components, wires);
         if (!cancelled) {
           setSimResult(res);
-          if (Object.keys(res.oscilloscopes).length > 0) {
-            setShowScopeDrawer(true);
-          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -274,17 +318,19 @@ export function CircuitWorkbench() {
 
   const handleAddComponent = (type: ComponentType, worldX?: number, worldY?: number) => {
     const def = COMPONENT_CATALOG[type];
-    const id = `${type}_${Date.now().toString(36).slice(-4)}`;
-    const x = snap(worldX ?? 260 + (components.length % 5) * 28);
-    const y = snap(worldY ?? 140 + (components.length % 4) * 28);
-    const placed: PlacedComponent = {
+    const id = `${type}_${++idCounterRef.current}`;
+    const rawX = worldX ?? 260 + (components.length % 5) * 28;
+    const rawY = worldY ?? 140 + (components.length % 4) * 28;
+    const draft: PlacedComponent = {
       id,
       type,
-      x,
-      y,
+      x: rawX,
+      y: rawY,
       rotation: 0,
       props: { ...def.defaultProps },
     };
+    const snapped = snapToBreadboardHoles(draft, components);
+    const placed: PlacedComponent = { ...draft, x: snapped.x, y: snapped.y };
     pushHistory([...components, placed], wires);
     setSelectedCompId(id);
     setSelectedWireId(null);
@@ -303,7 +349,7 @@ export function CircuitWorkbench() {
       return;
     }
     const newWire: Wire = {
-      id: `w_${Date.now().toString(36)}`,
+      id: `w_${++idCounterRef.current}`,
       from: drawingFrom,
       to: { compId, pinId },
       color: wireColor,
@@ -332,10 +378,14 @@ export function CircuitWorkbench() {
     setCursorWorld(world);
 
     if (draggingComp) {
-      const nx = snap(world.x - draggingComp.offsetX);
-      const ny = snap(world.y - draggingComp.offsetY);
+      const rawX = world.x - draggingComp.offsetX;
+      const rawY = world.y - draggingComp.offsetY;
       setComponents((prev) =>
-        prev.map((c) => (c.id === draggingComp.id ? { ...c, x: nx, y: ny } : c))
+        prev.map((c) => {
+          if (c.id !== draggingComp.id) return c;
+          const snapped = snapToBreadboardHoles({ ...c, x: rawX, y: rawY }, prev);
+          return { ...c, x: snapped.x, y: snapped.y };
+        })
       );
       return;
     }
@@ -519,20 +569,37 @@ export function CircuitWorkbench() {
             </button>
           </div>
 
-          {simRunning && firstScopeData && !showScopeDrawer && (
+          {components.some((c) => c.type === "oscilloscope") && (
             <button
               type="button"
-              onClick={() => setShowScopeDrawer(true)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-3.5 py-2 text-xs font-medium text-zinc-800 hover:bg-zinc-200 transition-colors cursor-pointer"
+              onClick={() => {
+                if (!showScopeDrawer && !simRunning) {
+                  setSimRunning(true);
+                }
+                setShowScopeDrawer((s) => !s);
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                showScopeDrawer
+                  ? "bg-zinc-900 text-white hover:bg-zinc-800"
+                  : "bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
+              }`}
             >
               <Activity className="h-3.5 w-3.5" />
-              <span>Open Scope</span>
+              <span>{showScopeDrawer ? "Hide Scope" : "Open Scope"}</span>
             </button>
           )}
 
           <button
             type="button"
-            onClick={() => setSimRunning((s) => !s)}
+            onClick={() => {
+              if (simRunning) {
+                setSimRunning(false);
+                setSimResult(null);
+                setSimLoading(false);
+              } else {
+                setSimRunning(true);
+              }
+            }}
             className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold transition-colors cursor-pointer ${
               simRunning
                 ? "bg-zinc-200 text-zinc-900 hover:bg-zinc-300"
@@ -804,7 +871,7 @@ export function CircuitWorkbench() {
                             <circle
                               cx={pin.x}
                               cy={pin.y}
-                              r={isHole ? (isHovered || isStart ? 4.2 : 2.6) : isHovered || isStart ? 5.5 : 3.8}
+                              r={isHole ? (isHovered || isStart ? 4.4 : 2.6) : isHovered || isStart ? 5.8 : 4.0}
                               fill={
                                 isStart
                                   ? "#18181b"
@@ -816,6 +883,13 @@ export function CircuitWorkbench() {
                               }
                               stroke="#18181b"
                               strokeWidth={isHole ? 0.8 : 1.5}
+                              className="pointer-events-none"
+                            />
+                            <circle
+                              cx={pin.x}
+                              cy={pin.y}
+                              r={isHole ? 6.5 : 9}
+                              fill="transparent"
                               className="cursor-pointer"
                               onMouseEnter={() => setHoveredPin({ compId: comp.id, pinId: pin.id })}
                               onMouseLeave={() => setHoveredPin(null)}
@@ -991,6 +1065,12 @@ export function CircuitWorkbench() {
           {simResult && simResult.errors.length > 0 && (
             <div className="absolute top-14 left-3 z-20 max-w-md rounded-2xl bg-zinc-900/90 text-zinc-100 px-4 py-2.5 text-xs">
               {simResult.errors[0]}
+            </div>
+          )}
+
+          {simResult && simResult.errors.length === 0 && simResult.warnings.length > 0 && (
+            <div className="absolute top-14 left-3 z-20 max-w-md rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 px-4 py-2 text-[11px]">
+              {simResult.warnings[0]}
             </div>
           )}
         </div>

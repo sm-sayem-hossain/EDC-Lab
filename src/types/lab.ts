@@ -1,5 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-
 export type ExperimentId =
   | "exp-1"
   | "exp-2"

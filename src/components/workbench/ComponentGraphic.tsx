@@ -387,6 +387,8 @@ export function ComponentGraphic({
           ? `${meterReading.value.toFixed(2)} ${meterReading.unit}`
           : mode === "current"
           ? "0.00 mA"
+          : mode === "voltage_ac"
+          ? "0.00 Vrms"
           : "0.00 V";
       return (
         <g>
@@ -404,14 +406,14 @@ export function ComponentGraphic({
           {/* Wide LCD */}
           <rect x={8} y={8} width={116} height={38} rx={5} fill="#3f3f46" />
           <rect x={11} y={11} width={110} height={32} rx={3} fill="#cfd7da" />
-          <text x={66} y={32} textAnchor="middle" className="fill-zinc-900 text-[13px] font-mono font-semibold">
+          <text x={66} y={32} textAnchor="middle" className="fill-zinc-900 text-[12px] font-mono font-semibold">
             {valText}
           </text>
-          {/* A / V / R mode circles on right */}
+          {/* A / V / AC mode circles on right */}
           {[
             { label: "A", cy: 14, active: mode === "current" },
             { label: "V", cy: 27, active: mode === "voltage" },
-            { label: "R", cy: 40, active: false },
+            { label: "~", cy: 40, active: mode === "voltage_ac" },
           ].map((b) => (
             <g key={b.label}>
               <circle
@@ -534,9 +536,9 @@ export function ComponentGraphic({
       const mat = String(comp.props.material ?? "si");
       return (
         <g>
-          <line x1={4} y1={16} x2={80} y2={16} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
+          <line x1={4} y1={16} x2={84} y2={16} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
           <rect
-            x={20}
+            x={22}
             y={7}
             width={44}
             height={18}
@@ -545,8 +547,8 @@ export function ComponentGraphic({
             stroke={isSelected ? "#18181b" : "#18181b"}
             strokeWidth={isSelected ? 1.8 : 1}
           />
-          <rect x={54} y={7} width={5} height={18} fill="#d4d4d8" />
-          <text x={42} y={31} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
+          <rect x={56} y={7} width={5} height={18} fill="#d4d4d8" />
+          <text x={44} y={31} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
             {mat === "ge" ? "1N34A" : "1N4007"}
           </text>
         </g>
@@ -554,12 +556,12 @@ export function ComponentGraphic({
     }
 
     case "zener": {
-      const vz = Number(comp.props.vz ?? 5.1);
+      const vz = Number(comp.props.vz ?? 8.9);
       return (
         <g>
-          <line x1={4} y1={16} x2={80} y2={16} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
+          <line x1={4} y1={16} x2={84} y2={16} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
           <rect
-            x={20}
+            x={22}
             y={7}
             width={44}
             height={18}
@@ -568,8 +570,8 @@ export function ComponentGraphic({
             stroke={isSelected ? "#18181b" : "#574031"}
             strokeWidth={isSelected ? 1.8 : 1}
           />
-          <rect x={54} y={7} width={5} height={18} fill="#18181b" />
-          <text x={42} y={31} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
+          <rect x={56} y={7} width={5} height={18} fill="#18181b" />
+          <text x={44} y={31} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
             Z {vz}V
           </text>
         </g>
@@ -580,18 +582,18 @@ export function ComponentGraphic({
       const isLit = simRunning && ledCurrentMa > 0.5;
       return (
         <g>
-          <line x1={4} y1={22} x2={22} y2={22} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
-          <line x1={46} y1={22} x2={64} y2={22} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
-          {isLit && <circle cx={34} cy={22} r={18} fill="#ca8a04" opacity={0.25} />}
+          <line x1={4} y1={22} x2={24} y2={22} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
+          <line x1={48} y1={22} x2={68} y2={22} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
+          {isLit && <circle cx={36} cy={22} r={18} fill="#ca8a04" opacity={0.25} />}
           <circle
-            cx={34}
+            cx={36}
             cy={22}
             r={12}
             fill={isLit ? "#ca8a04" : "#d4d4d8"}
             stroke={isSelected ? "#18181b" : "#71717a"}
             strokeWidth={isSelected ? 1.8 : 1.2}
           />
-          <text x={34} y={42} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
+          <text x={36} y={42} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
             {isLit ? `${ledCurrentMa.toFixed(1)}mA` : "LED"}
           </text>
         </g>

@@ -198,7 +198,7 @@ ${capLine}
       return {
         netlist: `Exp 6 Diode Clipper Circuit
 .model D1N4007 D(IS=7.02e-9 N=1.75 RS=0.034 BV=1000 IBV=5e-6)
-Vin in 0 SIN(0 ${amp} ${freq})
+Vin in 0 PULSE(${-amp} ${amp} 0 ${period * 0.49} ${period * 0.49} ${period * 0.01} ${period})
 R1 in out ${rVal}
 ${clipperLines}
 .tran ${tStep.toExponential(4)} ${tStop.toExponential(4)}
@@ -213,7 +213,7 @@ ${clipperLines}
       const vpp = Number(params.vpp ?? 10);
       const amp = vpp / 2;
       const freq = Number(params.freq ?? 1000);
-      const capUf = Number(params.capacitor ?? 10);
+      const capUf = Number(params.capacitor ?? 0.1);
       const rLoad = Number(params.loadResistor ?? 100000);
       const vBias = Number(params.biasVoltage ?? 0);
       const period = 1 / freq;
@@ -229,7 +229,7 @@ ${clipperLines}
       return {
         netlist: `Exp 7 Diode Clamper Circuit
 .model D1N4007 D(IS=7.02e-9 N=1.75 RS=0.034 BV=1000 IBV=5e-6)
-Vin in 0 SIN(0 ${amp} ${freq})
+Vin in 0 PULSE(${-amp} ${amp} 0 ${period * 0.01} ${period * 0.01} ${period * 0.48} ${period})
 C1 in out ${capUf}u
 Rload out 0 ${rLoad}
 ${diodeLine}
@@ -362,7 +362,7 @@ export function runCircuitSimulation(
     const rippleRms = Math.sqrt(Math.max(0, vrms * vrms - vavg * vavg));
     const rippleFactor = Math.abs(vavg) > 1e-4 ? rippleRms / Math.abs(vavg) : 0;
 
-    // Approximate phase shift for Exp 1
+    // Phase shift for Exp 1 (Vout across C or L with series R)
     let phaseShiftDeg = 0;
     if (expId === "exp-1") {
       const freq = Number(params.freq ?? 1000);
@@ -371,11 +371,11 @@ export function runCircuitSimulation(
       if (comp === "rc") {
         const c = Number(params.capacitor ?? 0.1) * 1e-6;
         const xc = 1 / (2 * Math.PI * freq * c);
-        phaseShiftDeg = -((Math.atan(xc / rVal) * 180) / Math.PI);
+        phaseShiftDeg = -((Math.atan(rVal / xc) * 180) / Math.PI);
       } else if (comp === "rl") {
         const l = Number(params.inductor ?? 100) * 1e-3;
         const xl = 2 * Math.PI * freq * l;
-        phaseShiftDeg = (Math.atan(xl / rVal) * 180) / Math.PI;
+        phaseShiftDeg = (Math.atan(rVal / xl) * 180) / Math.PI;
       }
     }
 
