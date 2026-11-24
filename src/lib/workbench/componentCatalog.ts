@@ -1,8 +1,5 @@
 import type { ComponentDef, ComponentType, PinDef } from "./workbenchTypes";
 
-// Build breadboard pins: 18 columns (compact enough to fit cleanly with instruments)
-// Rows a-e (top strip, connected per column) and f-j (bottom strip, connected per column)
-// Plus top/bottom power rails (+ and -)
 export const BB_COLS = 18;
 export const BB_PITCH = 16;
 export const BB_ORIGIN_X = 28;
@@ -51,14 +48,14 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
   },
   "dc-supply": {
     type: "dc-supply",
-    name: "DC Power Supply",
-    shortName: "DC Supply",
+    name: "Power Supply",
+    shortName: "Power Supply",
     category: "instruments",
-    width: 148,
-    height: 92,
+    width: 156,
+    height: 112,
     pins: [
-      { id: "pos", label: "DC +", x: 148, y: 30, kind: "power" },
-      { id: "neg", label: "DC -", x: 148, y: 62, kind: "power" },
+      { id: "pos", label: "DC + (Red)", x: 74, y: 110, kind: "power" },
+      { id: "neg", label: "DC - (Black)", x: 92, y: 110, kind: "power" },
     ],
     defaultProps: { voltage: 5 },
     properties: [
@@ -68,13 +65,13 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
   "func-gen": {
     type: "func-gen",
     name: "Function Generator",
-    shortName: "Func Gen",
+    shortName: "Function Generator",
     category: "instruments",
-    width: 168,
-    height: 102,
+    width: 214,
+    height: 126,
     pins: [
-      { id: "pos", label: "OUT +", x: 168, y: 34, kind: "signal" },
-      { id: "neg", label: "OUT -", x: 168, y: 68, kind: "signal" },
+      { id: "pos", label: "OUT + (Red)", x: 100, y: 124, kind: "signal" },
+      { id: "neg", label: "OUT - (Black)", x: 118, y: 124, kind: "signal" },
     ],
     defaultProps: { waveform: "sine", vpp: 10, freq: 1000 },
     properties: [
@@ -94,16 +91,16 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
   },
   oscilloscope: {
     type: "oscilloscope",
-    name: "Oscilloscope (2-CH)",
+    name: "Oscilloscope",
     shortName: "Oscilloscope",
     category: "instruments",
-    width: 184,
-    height: 118,
+    width: 176,
+    height: 178,
     pins: [
-      { id: "ch1_pos", label: "CH1 +", x: 0, y: 28, kind: "probe" },
-      { id: "ch1_neg", label: "CH1 GND", x: 0, y: 50, kind: "probe" },
-      { id: "ch2_pos", label: "CH2 +", x: 0, y: 78, kind: "probe" },
-      { id: "ch2_neg", label: "CH2 GND", x: 0, y: 100, kind: "probe" },
+      { id: "ch1_neg", label: "CH1 GND (Black)", x: 52, y: 176, kind: "probe" },
+      { id: "ch1_pos", label: "CH1 + (Red)", x: 70, y: 176, kind: "probe" },
+      { id: "ch2_neg", label: "CH2 GND (Black)", x: 106, y: 176, kind: "probe" },
+      { id: "ch2_pos", label: "CH2 + (Red)", x: 124, y: 176, kind: "probe" },
     ],
     defaultProps: {},
     properties: [],
@@ -113,17 +110,17 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
     name: "Multimeter",
     shortName: "Multimeter",
     category: "instruments",
-    width: 112,
-    height: 116,
+    width: 152,
+    height: 62,
     pins: [
-      { id: "pos", label: "V/mA +", x: 34, y: 116, kind: "probe" },
-      { id: "neg", label: "COM -", x: 78, y: 116, kind: "probe" },
+      { id: "neg", label: "COM - (Black)", x: 66, y: 60, kind: "probe" },
+      { id: "pos", label: "V/mA + (Red)", x: 84, y: 60, kind: "probe" },
     ],
     defaultProps: { mode: "voltage" },
     properties: [
       {
         key: "mode",
-        label: "Measurement Mode",
+        label: "Mode",
         type: "select",
         options: [
           { label: "Voltage (V)", value: "voltage" },
@@ -251,10 +248,10 @@ export const COMPONENT_CATALOG: Record<ComponentType, ComponentDef> = {
 
 export const CATALOG_LIST: ComponentDef[] = [
   COMPONENT_CATALOG.breadboard,
+  COMPONENT_CATALOG.multimeter,
   COMPONENT_CATALOG["dc-supply"],
   COMPONENT_CATALOG["func-gen"],
   COMPONENT_CATALOG.oscilloscope,
-  COMPONENT_CATALOG.multimeter,
   COMPONENT_CATALOG.ground,
   COMPONENT_CATALOG.resistor,
   COMPONENT_CATALOG.capacitor,
@@ -264,7 +261,6 @@ export const CATALOG_LIST: ComponentDef[] = [
   COMPONENT_CATALOG.led,
 ];
 
-/** Compute absolute canvas coordinates of a pin taking component rotation into account */
 export function getPinWorldPos(
   comp: { type: ComponentType; x: number; y: number; rotation: 0 | 90 | 180 | 270 },
   pinId: string

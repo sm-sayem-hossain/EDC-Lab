@@ -17,8 +17,8 @@ export type ComponentCategory = "instruments" | "passive" | "semiconductors";
 export interface PinDef {
   id: string;
   label: string;
-  x: number; // local x relative to component top-left
-  y: number; // local y relative to component top-left
+  x: number;
+  y: number;
   kind?: "power" | "signal" | "probe" | "hole";
 }
 
@@ -98,14 +98,20 @@ export interface WorkbenchSimResult {
   warnings: string[];
 }
 
+export interface ExperimentStepState {
+  id: string;
+  title: string;
+  instruction: string;
+  observation: string;
+  components: PlacedComponent[];
+  wires: Wire[];
+}
+
 export interface ExperimentTemplate {
   id: string;
   number: string;
   shortTitle: string;
   title: string;
   objective: string;
-  wiringSteps: string[];
-  whatToObserve: string;
-  components: PlacedComponent[];
-  wires: Wire[];
+  steps: ExperimentStepState[];
 }

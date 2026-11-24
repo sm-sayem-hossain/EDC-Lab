@@ -4,9 +4,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Activity,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
   Eraser,
   Play,
-  Plus,
   Redo2,
   RotateCw,
   Search,
@@ -48,20 +49,23 @@ function snap(v: number, grid = 8): number {
 }
 
 function makeWirePath(x1: number, y1: number, x2: number, y2: number): string {
-  const midX = (x1 + x2) / 2;
-  return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+  const midY = (y1 + y2) / 2;
+  return `M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
 }
 
 export function CircuitWorkbench() {
-  // Start with Experiment 04 (Half-Wave Rectifier) or clean starter so user immediately sees real wired bench
+  const [activeExpId, setActiveExpId] = useState<string>(EXPERIMENT_TEMPLATES[0].id);
+  const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
+
   const [components, setComponents] = useState<PlacedComponent[]>(
-    () => EXPERIMENT_TEMPLATES[0].components
+    () => EXPERIMENT_TEMPLATES[0].steps[0].components
   );
-  const [wires, setWires] = useState<Wire[]>(() => EXPERIMENT_TEMPLATES[0].wires);
+  const [wires, setWires] = useState<Wire[]>(
+    () => EXPERIMENT_TEMPLATES[0].steps[0].wires
+  );
   const [history, setHistory] = useState<BoardSnapshot[]>([]);
   const [future, setFuture] = useState<BoardSnapshot[]>([]);
 
-  // Selection & Interaction State
   const [selectedCompId, setSelectedCompId] = useState<string | null>(null);
   const [selectedWireId, setSelectedWireId] = useState<string | null>(null);
   const [wireColor, setWireColor] = useState<string>(WIRE_COLORS[0].value);
@@ -69,9 +73,8 @@ export function CircuitWorkbench() {
   const [cursorWorld, setCursorWorld] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [hoveredPin, setHoveredPin] = useState<WireEndpoint | null>(null);
 
-  // Canvas Pan & Zoom
-  const [zoom, setZoom] = useState<number>(1);
-  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 24, y: 16 });
+  const [zoom, setZoom] = useState<number>(0.95);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 20, y: 12 });
   const [draggingComp, setDraggingComp] = useState<{
     id: string;
     offsetX: number;
@@ -84,19 +87,23 @@ export function CircuitWorkbench() {
     origY: number;
   } | null>(null);
 
-  // Panels
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [category, setCategory] = useState<"all" | ComponentCategory>("all");
-  const [guideOpen, setGuideOpen] = useState<boolean>(false);
-  const [activeExpId, setActiveExpId] = useState<string>("exp-1");
+  const [guideOpen, setGuideOpen] = useState<boolean>(true);
   const [showScopeDrawer, setShowScopeDrawer] = useState<boolean>(true);
 
-  // Simulation State
   const [simRunning, setSimRunning] = useState<boolean>(false);
   const [simLoading, setSimLoading] = useState<boolean>(false);
   const [simResult, setSimResult] = useState<WorkbenchSimResult | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+
+  const activeTemplate = useMemo(
+    () => EXPERIMENT_TEMPLATES.find((t) => t.id === activeExpId) ?? EXPERIMENT_TEMPLATES[0],
+    [activeExpId]
+  );
+
+  const activeStep = activeTemplate.steps[activeStepIdx] ?? activeTemplate.steps[0];
 
   const pushHistory = useCallback(
     (nextComps: PlacedComponent[], nextWires: Wire[]) => {
@@ -129,6 +136,32 @@ export function CircuitWorkbench() {
       return f.slice(1);
     });
   }, [components, wires]);
+
+  // Jump directly to a specific Experiment + Step state and auto-run live simulation!
+  const applyExperimentStep = useCallback(
+    (expId: string, stepIndex: number, autoSimulate = true) => {
+      const tpl = EXPERIMENT_TEMPLATES.find((t) => t.id === expId);
+      if (!tpl) return;
+      const safeIdx = Math.max(0, Math.min(stepIndex, tpl.steps.length - 1));
+      const step = tpl.steps[safeIdx];
+      setActiveExpId(expId);
+      setActiveStepIdx(safeIdx);
+      setHistory((h) => [...h.slice(-30), { components, wires }]);
+      setFuture([]);
+      setComponents(step.components.map((c) => ({ ...c, props: { ...c.props } })));
+      setWires(step.wires.map((w) => ({ ...w })));
+      setSelectedCompId(null);
+      setSelectedWireId(null);
+      setDrawingFrom(null);
+      setPan({ x: 20, y: 12 });
+      setZoom(0.95);
+      if (autoSimulate) {
+        setSimRunning(true);
+        setShowScopeDrawer(true);
+      }
+    },
+    [components, wires]
+  );
 
   // Run SPICE whenever simRunning is true and circuit changes
   useEffect(() => {
@@ -163,7 +196,7 @@ export function CircuitWorkbench() {
       } finally {
         if (!cancelled) setSimLoading(false);
       }
-    }, 100);
+    }, 90);
 
     return () => {
       cancelled = true;
@@ -213,7 +246,6 @@ export function CircuitWorkbench() {
     }
   }, [selectedCompId, selectedWireId, components, wires, pushHistory]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (
@@ -281,11 +313,7 @@ export function CircuitWorkbench() {
   };
 
   const handleCanvasMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (e.button === 2) {
-      setDrawingFrom(null);
-      return;
-    }
-    if (drawingFrom) {
+    if (e.button === 2 || drawingFrom) {
       setDrawingFrom(null);
       return;
     }
@@ -321,27 +349,8 @@ export function CircuitWorkbench() {
   };
 
   const handleCanvasMouseUp = () => {
-    if (draggingComp) {
-      setDraggingComp(null);
-    }
-    if (panning) {
-      setPanning(null);
-    }
-  };
-
-  const handleLoadTemplate = (expId: string) => {
-    const tpl = EXPERIMENT_TEMPLATES.find((t) => t.id === expId);
-    if (!tpl) return;
-    setActiveExpId(expId);
-    pushHistory(
-      tpl.components.map((c) => ({ ...c, props: { ...c.props } })),
-      tpl.wires.map((w) => ({ ...w }))
-    );
-    setSelectedCompId(null);
-    setSelectedWireId(null);
-    setDrawingFrom(null);
-    setPan({ x: 24, y: 16 });
-    setZoom(1);
+    if (draggingComp) setDraggingComp(null);
+    if (panning) setPanning(null);
   };
 
   const handleClearBoard = () => {
@@ -349,10 +358,10 @@ export function CircuitWorkbench() {
     pushHistory(
       [
         {
-          id: "bb_main",
+          id: "bb1",
           type: "breadboard",
           x: 240,
-          y: 120,
+          y: 212,
           rotation: 0,
           props: {},
         },
@@ -389,18 +398,12 @@ export function CircuitWorkbench() {
     [components, selectedCompId]
   );
 
-  const activeTemplate = useMemo(
-    () => EXPERIMENT_TEMPLATES.find((t) => t.id === activeExpId) ?? EXPERIMENT_TEMPLATES[0],
-    [activeExpId]
-  );
-
   const firstScopeData = useMemo(() => {
     if (!simResult) return null;
     const keys = Object.keys(simResult.oscilloscopes);
     return keys.length > 0 ? simResult.oscilloscopes[keys[0]] : null;
   }, [simResult]);
 
-  // Preview wire coordinates
   const drawingFromPos = useMemo(() => {
     if (!drawingFrom) return null;
     const comp = components.find((c) => c.id === drawingFrom.compId);
@@ -409,7 +412,7 @@ export function CircuitWorkbench() {
   }, [drawingFrom, components]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-112px)] min-h-[620px] gap-3">
+    <div className="flex flex-col h-[calc(100vh-112px)] min-h-[640px] gap-3">
       {/* Studio Action Toolbar */}
       <div className="rounded-3xl bg-white px-4 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -476,7 +479,6 @@ export function CircuitWorkbench() {
 
           <div className="h-4 w-px bg-zinc-200 mx-1 hidden sm:block" />
 
-          {/* Wire Color Swatches */}
           <div className="flex items-center gap-1.5 px-1">
             <span className="text-[11px] text-zinc-500 mr-0.5">Wire</span>
             {WIRE_COLORS.map((wc) => (
@@ -494,7 +496,6 @@ export function CircuitWorkbench() {
           </div>
         </div>
 
-        {/* Right Toolbar: Zoom & Start Simulation */}
         <div className="flex items-center gap-2">
           <div className="hidden md:flex items-center gap-1 rounded-full bg-zinc-100 p-1">
             <button
@@ -510,7 +511,7 @@ export function CircuitWorkbench() {
             </span>
             <button
               type="button"
-              onClick={() => setZoom((z) => Math.min(1.6, Number((z + 0.1).toFixed(2))))}
+              onClick={() => setZoom((z) => Math.min(1.5, Number((z + 0.1).toFixed(2))))}
               className="rounded-full p-1.5 text-zinc-600 hover:bg-white transition-colors cursor-pointer"
               title="Zoom In"
             >
@@ -555,12 +556,12 @@ export function CircuitWorkbench() {
 
       {/* Main Workspace Area */}
       <div className="flex-1 flex gap-3 min-h-0 relative">
-        {/* Left Lab Guide Drawer */}
+        {/* Left Lab Guide Drawer with Clickable Auto-Simulating Steps */}
         {guideOpen && (
           <aside className="w-80 shrink-0 rounded-3xl bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col gap-3 overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-zinc-900">
-                CSE-216 Lab Experiments
+                CSE-216 Lab Guide
               </h3>
               <button
                 type="button"
@@ -571,12 +572,13 @@ export function CircuitWorkbench() {
               </button>
             </div>
 
+            {/* Experiment Pills */}
             <div className="flex flex-wrap gap-1.5">
               {EXPERIMENT_TEMPLATES.map((tpl) => (
                 <button
                   key={tpl.id}
                   type="button"
-                  onClick={() => setActiveExpId(tpl.id)}
+                  onClick={() => applyExperimentStep(tpl.id, 0, true)}
                   className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                     activeExpId === tpl.id
                       ? "bg-zinc-900 text-white"
@@ -588,60 +590,98 @@ export function CircuitWorkbench() {
               ))}
             </div>
 
-            <div className="rounded-2xl bg-zinc-50 p-3.5 space-y-2">
+            {/* Active Experiment Info */}
+            <div className="rounded-2xl bg-zinc-50 p-3.5 space-y-1.5">
               <div className="text-xs font-semibold text-zinc-900">
                 {activeTemplate.title}
               </div>
               <p className="text-xs text-zinc-600 leading-relaxed">
                 {activeTemplate.objective}
               </p>
-              <div className="flex gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => handleLoadTemplate(activeTemplate.id)}
-                  className="flex-1 rounded-full bg-zinc-900 px-3 py-2 text-xs font-medium text-white hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  Load Wired Circuit
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClearBoard}
-                  className="rounded-full bg-white px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-200/70 transition-colors cursor-pointer"
-                >
-                  Build Solo
-                </button>
-              </div>
             </div>
 
+            {/* Interactive Step List: Click any step to load & simulate */}
             <div className="space-y-2">
-              <div className="text-xs font-semibold text-zinc-700">
-                Step-by-Step Wiring Guide
-              </div>
-              <ol className="space-y-2">
-                {activeTemplate.wiringSteps.map((step, i) => (
-                  <li
-                    key={i}
-                    className="rounded-2xl bg-zinc-50/80 p-3 text-xs text-zinc-700 leading-relaxed"
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-zinc-700">
+                  Interactive Steps
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    disabled={activeStepIdx === 0}
+                    onClick={() => applyExperimentStep(activeExpId, activeStepIdx - 1, true)}
+                    className="inline-flex items-center gap-0.5 rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-200 disabled:opacity-40 cursor-pointer"
                   >
-                    <span className="font-mono font-semibold text-zinc-900 mr-1.5">
-                      {i + 1}.
-                    </span>
-                    {step}
-                  </li>
-                ))}
-              </ol>
-            </div>
+                    <ChevronLeft className="h-3 w-3" />
+                    <span>Prev</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={activeStepIdx >= activeTemplate.steps.length - 1}
+                    onClick={() => applyExperimentStep(activeExpId, activeStepIdx + 1, true)}
+                    className="inline-flex items-center gap-0.5 rounded-full bg-zinc-900 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-zinc-800 disabled:opacity-40 cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
 
-            <div className="rounded-2xl bg-zinc-100/80 p-3 text-xs text-zinc-600 leading-relaxed">
-              <span className="font-semibold text-zinc-900">Observe: </span>
-              {activeTemplate.whatToObserve}
+              <div className="space-y-2">
+                {activeTemplate.steps.map((step, idx) => {
+                  const isCurrent = idx === activeStepIdx;
+                  return (
+                    <div
+                      key={step.id}
+                      className={`rounded-2xl p-3 space-y-2 transition-colors ${
+                        isCurrent ? "bg-zinc-900 text-white" : "bg-zinc-50 text-zinc-800"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-semibold leading-snug">
+                          {step.title}
+                        </span>
+                      </div>
+                      <p
+                        className={`text-[11px] leading-relaxed ${
+                          isCurrent ? "text-zinc-300" : "text-zinc-600"
+                        }`}
+                      >
+                        {step.instruction}
+                      </p>
+                      <div
+                        className={`rounded-xl px-2.5 py-2 text-[11px] leading-relaxed ${
+                          isCurrent
+                            ? "bg-zinc-800 text-zinc-200"
+                            : "bg-white text-zinc-600"
+                        }`}
+                      >
+                        {step.observation}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => applyExperimentStep(activeExpId, idx, true)}
+                        className={`w-full inline-flex items-center justify-center gap-1.5 rounded-full py-1.5 text-[11px] font-medium transition-colors cursor-pointer ${
+                          isCurrent
+                            ? "bg-white text-zinc-900 hover:bg-zinc-200"
+                            : "bg-zinc-200/80 text-zinc-800 hover:bg-zinc-300/80"
+                        }`}
+                      >
+                        <Play className="h-3 w-3 fill-current" />
+                        <span>{isCurrent ? "Re-run This Step" : "Load & Simulate Step"}</span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </aside>
         )}
 
         {/* Center Interactive SVG Canvas */}
         <div
-          className="flex-1 rounded-3xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] relative overflow-hidden select-none"
+          className="flex-1 rounded-3xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] relative overflow-hidden select-none flex flex-col"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -653,11 +693,40 @@ export function CircuitWorkbench() {
             }
           }}
         >
-          {/* Subtle top-left helper hint */}
-          <div className="absolute top-3 left-3 z-10 pointer-events-none rounded-full bg-zinc-100/90 backdrop-blur-xs px-3.5 py-1.5 text-[11px] text-zinc-600">
-            {drawingFrom
-              ? "Click another pin or breadboard hole to connect wire (Esc to cancel)"
-              : "Drag components to move · Click any pin to draw a wire · Press R to rotate"}
+          {/* Quick Floating Step Switcher Bar on Canvas */}
+          <div className="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+            <div className="pointer-events-auto rounded-full bg-zinc-100/95 backdrop-blur-xs px-3.5 py-1.5 text-[11px] text-zinc-700">
+              {drawingFrom
+                ? "Click another pin or breadboard hole to connect wire (Esc to cancel)"
+                : `Exp ${activeTemplate.number} · ${activeStep.title}`}
+            </div>
+
+            <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-zinc-100/95 backdrop-blur-xs p-1">
+              {activeTemplate.steps.map((s, idx) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => applyExperimentStep(activeExpId, idx, true)}
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
+                    idx === activeStepIdx
+                      ? "bg-zinc-900 text-white"
+                      : "text-zinc-600 hover:bg-white"
+                  }`}
+                >
+                  Step {idx + 1}
+                </button>
+              ))}
+              {activeStepIdx < activeTemplate.steps.length - 1 && (
+                <button
+                  type="button"
+                  onClick={() => applyExperimentStep(activeExpId, activeStepIdx + 1, true)}
+                  className="inline-flex items-center gap-0.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-zinc-900 hover:bg-zinc-200/70 transition-colors cursor-pointer"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="h-3 w-3" />
+                </button>
+              )}
+            </div>
           </div>
 
           <svg
@@ -723,7 +792,6 @@ export function CircuitWorkbench() {
                         ledCurrentMa={simResult?.ledCurrentsMa[comp.id] ?? 0}
                       />
 
-                      {/* Interactive Pin Terminals */}
                       {def.pins.map((pin) => {
                         const isHovered =
                           hoveredPin?.compId === comp.id && hoveredPin?.pinId === pin.id;
@@ -736,7 +804,7 @@ export function CircuitWorkbench() {
                             <circle
                               cx={pin.x}
                               cy={pin.y}
-                              r={isHole ? (isHovered || isStart ? 4.2 : 2.6) : isHovered || isStart ? 6 : 4.2}
+                              r={isHole ? (isHovered || isStart ? 4.2 : 2.6) : isHovered || isStart ? 5.5 : 3.8}
                               fill={
                                 isStart
                                   ? "#18181b"
@@ -747,7 +815,7 @@ export function CircuitWorkbench() {
                                   : "#ffffff"
                               }
                               stroke="#18181b"
-                              strokeWidth={isHole ? 0.8 : 1.6}
+                              strokeWidth={isHole ? 0.8 : 1.5}
                               className="cursor-pointer"
                               onMouseEnter={() => setHoveredPin({ compId: comp.id, pinId: pin.id })}
                               onMouseLeave={() => setHoveredPin(null)}
@@ -783,18 +851,17 @@ export function CircuitWorkbench() {
                       setSelectedCompId(null);
                     }}
                   >
-                    {/* Invisible wider hit area */}
                     <path d={d} fill="none" stroke="transparent" strokeWidth={12} />
                     <path
                       d={d}
                       fill="none"
                       stroke={isSelected ? "#18181b" : w.color}
-                      strokeWidth={isSelected ? 3.5 : 2.5}
+                      strokeWidth={isSelected ? 3.5 : 2.3}
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                    <circle cx={p1.x} cy={p1.y} r={3} fill={w.color} />
-                    <circle cx={p2.x} cy={p2.y} r={3} fill={w.color} />
+                    <circle cx={p1.x} cy={p1.y} r={2.8} fill={w.color} />
+                    <circle cx={p2.x} cy={p2.y} r={2.8} fill={w.color} />
                   </g>
                 );
               })}
@@ -907,7 +974,6 @@ export function CircuitWorkbench() {
             </div>
           )}
 
-          {/* Selected Wire Action Pill */}
           {selectedWireId && (
             <div className="absolute bottom-4 left-4 z-20 rounded-full bg-white px-4 py-2 shadow-[0_8px_28px_rgba(0,0,0,0.09)] flex items-center gap-3">
               <span className="text-xs font-medium text-zinc-700">Wire selected</span>
@@ -922,15 +988,14 @@ export function CircuitWorkbench() {
             </div>
           )}
 
-          {/* Error Notice */}
           {simResult && simResult.errors.length > 0 && (
-            <div className="absolute top-12 left-3 z-20 max-w-md rounded-2xl bg-zinc-900/90 text-zinc-100 px-4 py-2.5 text-xs">
+            <div className="absolute top-14 left-3 z-20 max-w-md rounded-2xl bg-zinc-900/90 text-zinc-100 px-4 py-2.5 text-xs">
               {simResult.errors[0]}
             </div>
           )}
         </div>
 
-        {/* Right Component Tray (Tinkercad-style) */}
+        {/* Right Component Tray with Real SVG Previews */}
         <aside className="w-64 shrink-0 rounded-3xl bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col gap-3">
           <div className="space-y-2">
             <div className="relative">

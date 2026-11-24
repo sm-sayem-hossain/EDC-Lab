@@ -81,19 +81,15 @@ export function ComponentGraphic({
             stroke={isSelected ? "#18181b" : "#e4e4e7"}
             strokeWidth={isSelected ? 2 : 1}
           />
-          {/* Subtle power rail guide lines */}
-          <line x1={18} y1={BB_TOP_RAIL_POS_Y - 6} x2={w - 18} y2={BB_TOP_RAIL_POS_Y - 6} stroke="#a8a29e" strokeWidth={1} strokeDasharray="4 4" />
-          <line x1={18} y1={BB_TOP_RAIL_NEG_Y + 6} x2={w - 18} y2={BB_TOP_RAIL_NEG_Y + 6} stroke="#d4d4d8" strokeWidth={1} />
-          <line x1={18} y1={BB_BOT_RAIL_POS_Y - 6} x2={w - 18} y2={BB_BOT_RAIL_POS_Y - 6} stroke="#d4d4d8" strokeWidth={1} />
-          <line x1={18} y1={BB_BOT_RAIL_NEG_Y + 6} x2={w - 18} y2={BB_BOT_RAIL_NEG_Y + 6} stroke="#a8a29e" strokeWidth={1} strokeDasharray="4 4" />
-          {/* Center DIP trough */}
+          <line x1={18} y1={BB_TOP_RAIL_POS_Y - 6} x2={w - 18} y2={BB_TOP_RAIL_POS_Y - 6} stroke="#b97a72" strokeWidth={1.2} />
+          <line x1={18} y1={BB_TOP_RAIL_NEG_Y + 6} x2={w - 18} y2={BB_TOP_RAIL_NEG_Y + 6} stroke="#7d8da1" strokeWidth={1.2} />
+          <line x1={18} y1={BB_BOT_RAIL_POS_Y - 6} x2={w - 18} y2={BB_BOT_RAIL_POS_Y - 6} stroke="#b97a72" strokeWidth={1.2} />
+          <line x1={18} y1={BB_BOT_RAIL_NEG_Y + 6} x2={w - 18} y2={BB_BOT_RAIL_NEG_Y + 6} stroke="#7d8da1" strokeWidth={1.2} />
           <rect x={14} y={128} width={w - 28} height={10} rx={5} fill="#e7e5e4" />
-          {/* Rail +/- markers */}
           <text x={11} y={BB_TOP_RAIL_POS_Y + 3} className="fill-zinc-500 text-[9px] font-mono">+</text>
           <text x={12} y={BB_TOP_RAIL_NEG_Y + 3} className="fill-zinc-500 text-[9px] font-mono">-</text>
           <text x={11} y={BB_BOT_RAIL_POS_Y + 3} className="fill-zinc-500 text-[9px] font-mono">+</text>
           <text x={12} y={BB_BOT_RAIL_NEG_Y + 3} className="fill-zinc-500 text-[9px] font-mono">-</text>
-          {/* Column numbers every 5 */}
           {Array.from({ length: BB_COLS }, (_, idx) => idx + 1).map((col) =>
             col === 1 || col % 5 === 0 ? (
               <text
@@ -107,7 +103,6 @@ export function ComponentGraphic({
               </text>
             ) : null
           )}
-          {/* Row letters */}
           {["a", "b", "c", "d", "e"].map((r, i) => (
             <text key={r} x={11} y={BB_TOP_ROWS_Y[i] + 3} className="fill-zinc-400 text-[8px] font-mono">
               {r}
@@ -126,28 +121,55 @@ export function ComponentGraphic({
       const v = Number(comp.props.voltage ?? 5);
       return (
         <g>
+          {/* Benchtop light-grey casing matching Tinkercad Power Supply */}
           <rect
             x={0}
             y={0}
             width={def.width}
             height={def.height}
-            rx={16}
-            fill="#27272a"
-            stroke={isSelected ? "#18181b" : "none"}
-            strokeWidth={2}
+            rx={12}
+            fill="#e4e4e2"
+            stroke={isSelected ? "#18181b" : "#d4d4d1"}
+            strokeWidth={isSelected ? 2 : 1}
           />
-          <text x={14} y={20} className="fill-zinc-400 text-[9px] font-medium uppercase tracking-wider">
-            DC Power Supply
+          {/* Top LCD: Voltage */}
+          <rect x={10} y={10} width={92} height={32} rx={6} fill="#3f3f46" />
+          <rect x={13} y={13} width={86} height={26} rx={4} fill="#cfd7da" />
+          <text x={56} y={31} textAnchor="middle" className="fill-zinc-900 text-[13px] font-mono font-semibold">
+            {v.toFixed(2)} V
           </text>
-          <rect x={14} y={28} width={100} height={36} rx={10} fill="#18181b" />
-          <text x={64} y={51} textAnchor="middle" className="fill-zinc-100 text-[16px] font-mono font-semibold">
-            {v.toFixed(1)} V
+          {/* Bottom LCD: Current Limit */}
+          <rect x={10} y={48} width={92} height={32} rx={6} fill="#3f3f46" />
+          <rect x={13} y={51} width={86} height={26} rx={4} fill="#cfd7da" />
+          <text x={56} y={69} textAnchor="middle" className="fill-zinc-700 text-[12px] font-mono">
+            {simRunning ? "ON · 1.0A" : "0.00 A"}
           </text>
-          <text x={14} y={80} className="fill-zinc-400 text-[9px] font-mono">
-            {simRunning ? "OUTPUT ON" : "STANDBY"}
+          {/* Rotary dials */}
+          <circle cx={128} cy={26} r={14} fill="#71717a" stroke="#52525b" strokeWidth={1.5} />
+          <circle cx={128} cy={26} r={10} fill="#a1a1aa" />
+          <line x1={128} y1={26} x2={135} y2={20} stroke="#27272a" strokeWidth={2} strokeLinecap="round" />
+          <text x={144} y={14} className="fill-zinc-500 text-[6px] font-mono">CV</text>
+
+          <circle cx={128} cy={64} r={14} fill="#71717a" stroke="#52525b" strokeWidth={1.5} />
+          <circle cx={128} cy={64} r={10} fill="#a1a1aa" />
+          <line x1={128} y1={64} x2={135} y2={58} stroke="#27272a" strokeWidth={2} strokeLinecap="round" />
+          <text x={144} y={52} className="fill-zinc-500 text-[6px] font-mono">CC</text>
+
+          {/* Bottom power toggle */}
+          <rect x={12} y={90} width={28} height={13} rx={6.5} fill="#52525b" />
+          <circle cx={simRunning ? 33 : 19} cy={96.5} r={5} fill="#e4e4e2" />
+          <text x={122} y={97} className="fill-zinc-500 text-[6px] font-mono uppercase">
+            POWER
           </text>
-          <text x={132} y={33} textAnchor="end" className="fill-zinc-300 text-[10px] font-mono">+</text>
-          <text x={132} y={65} textAnchor="end" className="fill-zinc-400 text-[10px] font-mono">-</text>
+          <text x={122} y={104} className="fill-zinc-500 text-[6px] font-mono uppercase">
+            SUPPLY
+          </text>
+
+          {/* Bottom banana jacks (+ red, - black) */}
+          <circle cx={74} cy={97} r={6} fill="#991b1b" />
+          <circle cx={74} cy={97} r={2.5} fill="#27272a" />
+          <circle cx={92} cy={97} r={6} fill="#27272a" />
+          <circle cx={92} cy={97} r={2.5} fill="#71717a" />
         </g>
       );
     }
@@ -156,6 +178,7 @@ export function ComponentGraphic({
       const wave = String(comp.props.waveform ?? "sine");
       const vpp = Number(comp.props.vpp ?? 10);
       const freq = Number(comp.props.freq ?? 1000);
+      const freqLabel = freq >= 1000 ? `${(freq / 1000).toFixed(2)} kHz` : `${freq} Hz`;
       return (
         <g>
           <rect
@@ -163,45 +186,132 @@ export function ComponentGraphic({
             y={0}
             width={def.width}
             height={def.height}
-            rx={16}
-            fill="#27272a"
-            stroke={isSelected ? "#18181b" : "none"}
-            strokeWidth={2}
+            rx={12}
+            fill="#e4e4e2"
+            stroke={isSelected ? "#18181b" : "#d4d4d1"}
+            strokeWidth={isSelected ? 2 : 1}
           />
-          <text x={14} y={20} className="fill-zinc-400 text-[9px] font-medium uppercase tracking-wider">
-            Function Generator
+          {/* 3 Stacked LCDs on the left */}
+          <rect x={10} y={10} width={78} height={26} rx={5} fill="#3f3f46" />
+          <rect x={13} y={13} width={72} height={20} rx={3} fill="#cfd7da" />
+          <text x={49} y={27} textAnchor="middle" className="fill-zinc-900 text-[10px] font-mono font-semibold">
+            {freqLabel}
           </text>
-          <rect x={14} y={28} width={118} height={46} rx={10} fill="#18181b" />
-          <text x={24} y={47} className="fill-zinc-100 text-[13px] font-mono font-semibold">
-            {freq >= 1000 ? `${(freq / 1000).toFixed(1)} kHz` : `${freq} Hz`}
+
+          <rect x={10} y={40} width={78} height={26} rx={5} fill="#3f3f46" />
+          <rect x={13} y={43} width={72} height={20} rx={3} fill="#cfd7da" />
+          <text x={49} y={57} textAnchor="middle" className="fill-zinc-900 text-[10px] font-mono font-semibold">
+            {vpp.toFixed(1)} Vpp
           </text>
-          <text x={24} y={64} className="fill-zinc-400 text-[10px] font-mono">
-            {vpp} Vpp · {wave.toUpperCase()}
+
+          <rect x={10} y={70} width={78} height={26} rx={5} fill="#3f3f46" />
+          <rect x={13} y={73} width={72} height={20} rx={3} fill="#cfd7da" />
+          <text x={49} y={87} textAnchor="middle" className="fill-zinc-700 text-[10px] font-mono">
+            0.00 V
           </text>
-          <text x={14} y={90} className="fill-zinc-400 text-[9px] font-mono">
-            {simRunning ? "ACTIVE" : "READY"}
+
+          {/* 3 Rotary dials in middle */}
+          {[23, 53, 83].map((cy, idx) => (
+            <g key={cy}>
+              <circle cx={112} cy={cy} r={11.5} fill="#71717a" stroke="#52525b" strokeWidth={1.2} />
+              <circle cx={112} cy={cy} r={8} fill="#a1a1aa" />
+              <line
+                x1={112}
+                y1={cy}
+                x2={112 + (idx === 1 ? 6 : 4)}
+                y2={cy - 5}
+                stroke="#27272a"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+              />
+            </g>
+          ))}
+
+          {/* 3 Waveform buttons on top-right */}
+          {[
+            { id: "square", x: 136 },
+            { id: "sine", x: 160 },
+            { id: "triangle", x: 184 },
+          ].map((btn) => {
+            const active = wave === btn.id;
+            return (
+              <g key={btn.id}>
+                <rect
+                  x={btn.x}
+                  y={12}
+                  width={20}
+                  height={20}
+                  rx={4}
+                  fill={active ? "#27272a" : "#d4d4d1"}
+                />
+                {btn.id === "square" && (
+                  <path
+                    d={`M ${btn.x + 4} 26 v -8 h 6 v 8 h 6`}
+                    fill="none"
+                    stroke={active ? "#f4f4f5" : "#3f3f46"}
+                    strokeWidth={1.4}
+                  />
+                )}
+                {btn.id === "sine" && (
+                  <path
+                    d={`M ${btn.x + 4} 22 q 3 -7 6 0 t 6 0`}
+                    fill="none"
+                    stroke={active ? "#f4f4f5" : "#3f3f46"}
+                    strokeWidth={1.4}
+                  />
+                )}
+                {btn.id === "triangle" && (
+                  <path
+                    d={`M ${btn.x + 4} 26 l 6 -9 l 6 9`}
+                    fill="none"
+                    stroke={active ? "#f4f4f5" : "#3f3f46"}
+                    strokeWidth={1.4}
+                  />
+                )}
+              </g>
+            );
+          })}
+
+          {/* Decorative amplitude / offset diagrams on right */}
+          <path d="M 146 54 q 10 -12 20 0 t 20 0" fill="none" stroke="#71717a" strokeWidth={1.3} />
+          <line x1={144} y1={54} x2={188} y2={54} stroke="#a1a1aa" strokeWidth={0.8} strokeDasharray="2 2" />
+          <path d="M 146 82 q 10 -10 20 0 t 20 0" fill="none" stroke="#71717a" strokeWidth={1.3} />
+          <line x1={144} y1={82} x2={188} y2={82} stroke="#a1a1aa" strokeWidth={0.8} strokeDasharray="2 2" />
+
+          {/* Bottom power toggle & label */}
+          <rect x={12} y={104} width={28} height={13} rx={6.5} fill="#52525b" />
+          <circle cx={simRunning ? 33 : 19} cy={110.5} r={5} fill="#e4e4e2" />
+          <text x={148} y={110} className="fill-zinc-500 text-[6px] font-mono uppercase">
+            FUNCTION
           </text>
-          <text x={152} y={37} textAnchor="end" className="fill-zinc-300 text-[10px] font-mono">+</text>
-          <text x={152} y={71} textAnchor="end" className="fill-zinc-400 text-[10px] font-mono">-</text>
+          <text x={148} y={117} className="fill-zinc-500 text-[6px] font-mono uppercase">
+            GENERATOR
+          </text>
+
+          {/* Bottom banana jacks (+ red, - black) */}
+          <circle cx={100} cy={111} r={6} fill="#991b1b" />
+          <circle cx={100} cy={111} r={2.5} fill="#27272a" />
+          <circle cx={118} cy={111} r={6} fill="#27272a" />
+          <circle cx={118} cy={111} r={2.5} fill="#71717a" />
         </g>
       );
     }
 
     case "oscilloscope": {
-      // Mini waveform preview path on the scope screen
+      // Tinkercad-style benchtop Oscilloscope with warm muted amber casing & gridded LCD
       let path1 = "";
       let path2 = "";
       if (simRunning && scopeData && scopeData.points.length > 1) {
         const pts = scopeData.points;
         const allVals = pts.flatMap((p) => [p.ch1, p.ch2]);
         const maxAbs = Math.max(1, ...allVals.map((v) => Math.abs(v)));
-        const sx = 112 / (pts.length - 1);
-        const sy = 22 / maxAbs;
+        const sx = 136 / (pts.length - 1);
+        const sy = 56 / maxAbs;
         path1 = pts
-          .map((p, i) => `${i === 0 ? "M" : "L"} ${(56 + i * sx).toFixed(1)} ${(56 - p.ch1 * sy).toFixed(1)}`)
+          .map((p, i) => `${i === 0 ? "M" : "L"} ${(16 + i * sx).toFixed(1)} ${(82 - p.ch1 * sy).toFixed(1)}`)
           .join(" ");
         path2 = pts
-          .map((p, i) => `${i === 0 ? "M" : "L"} ${(56 + i * sx).toFixed(1)} ${(56 - p.ch2 * sy).toFixed(1)}`)
+          .map((p, i) => `${i === 0 ? "M" : "L"} ${(16 + i * sx).toFixed(1)} ${(82 - p.ch2 * sy).toFixed(1)}`)
           .join(" ");
       }
       return (
@@ -210,36 +320,62 @@ export function ComponentGraphic({
             x={0}
             y={0}
             width={def.width}
-            height={def.height}
-            rx={16}
-            fill="#27272a"
-            stroke={isSelected ? "#18181b" : "none"}
-            strokeWidth={2}
+            height={def.height - 10}
+            rx={12}
+            fill="#d49a2a"
+            stroke={isSelected ? "#18181b" : "#b8821d"}
+            strokeWidth={isSelected ? 2 : 1}
           />
-          <text x={54} y={18} className="fill-zinc-400 text-[9px] font-medium uppercase tracking-wider">
-            Oscilloscope 2-CH
+          {/* Dark screen bezel */}
+          <rect x={11} y={10} width={146} height={140} rx={6} fill="#3f3f46" />
+          {/* Gridded LCD */}
+          <rect x={14} y={13} width={140} height={134} rx={4} fill="#cfd7da" />
+          {/* Vertical gridlines */}
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <line
+              key={`vx-${i}`}
+              x1={14 + i * 14}
+              y1={13}
+              x2={14 + i * 14}
+              y2={147}
+              stroke={i === 5 ? "#8b989e" : "#b4c0c4"}
+              strokeWidth={i === 5 ? 1 : 0.6}
+            />
+          ))}
+          {/* Horizontal gridlines */}
+          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+            <line
+              key={`hy-${i}`}
+              x1={14}
+              y1={13 + i * 16.75}
+              x2={154}
+              y2={13 + i * 16.75}
+              stroke={i === 4 ? "#8b989e" : "#b4c0c4"}
+              strokeWidth={i === 4 ? 1 : 0.6}
+            />
+          ))}
+          {path1 && <path d={path1} fill="none" stroke="#64748b" strokeWidth={1.35} />}
+          {path2 && <path d={path2} fill="none" stroke="#18181b" strokeWidth={2.0} />}
+
+          {/* Bottom 'Time' and right 'Voltage' labels */}
+          <text x={84} y={162} textAnchor="middle" className="fill-zinc-900 text-[8px] font-semibold">
+            Time
           </text>
-          <rect x={52} y={24} width={120} height={64} rx={10} fill="#18181b" />
-          {/* Subtle grid */}
-          <line x1={52} y1={56} x2={172} y2={56} stroke="#27272a" strokeWidth={1} />
-          <line x1={112} y1={24} x2={112} y2={88} stroke="#27272a" strokeWidth={1} />
-          {path1 && <path d={path1} fill="none" stroke="#71717a" strokeWidth={1.2} />}
-          {path2 && <path d={path2} fill="none" stroke="#f4f4f5" strokeWidth={1.6} />}
-          {!simRunning && (
-            <text x={112} y={59} textAnchor="middle" className="fill-zinc-500 text-[9px] font-mono">
-              CH1 / CH2
-            </text>
-          )}
-          <text x={54} y={104} className="fill-zinc-400 text-[9px] font-mono">
-            {simRunning && scopeData
-              ? `CH2 ${scopeData.ch2.vpp}Vpp`
-              : "Wire probes to view"}
+          <text
+            x={166}
+            y={82}
+            textAnchor="middle"
+            transform="rotate(-90 166 82)"
+            className="fill-zinc-900 text-[8px] font-semibold"
+          >
+            Voltage
           </text>
-          {/* Probe labels */}
-          <text x={12} y={31} className="fill-zinc-300 text-[8px] font-mono">CH1+</text>
-          <text x={12} y={53} className="fill-zinc-500 text-[8px] font-mono">GND</text>
-          <text x={12} y={81} className="fill-zinc-300 text-[8px] font-mono">CH2+</text>
-          <text x={12} y={103} className="fill-zinc-500 text-[8px] font-mono">GND</text>
+
+          {/* Bottom probe stubs: CH1 (-/+), CH2 (-/+) */}
+          <rect x={50} y={168} width={4} height={8} rx={1} fill="#27272a" />
+          <rect x={68} y={168} width={4} height={8} rx={1} fill="#991b1b" />
+          <rect x={104} y={168} width={4} height={8} rx={1} fill="#27272a" />
+          <rect x={122} y={168} width={4} height={8} rx={1} fill="#991b1b" />
         </g>
       );
     }
@@ -254,27 +390,51 @@ export function ComponentGraphic({
           : "0.00 V";
       return (
         <g>
+          {/* Horizontal muted amber Tinkercad-style Multimeter */}
           <rect
             x={0}
             y={0}
             width={def.width}
-            height={def.height}
-            rx={16}
-            fill="#3f3f46"
-            stroke={isSelected ? "#18181b" : "none"}
-            strokeWidth={2}
+            height={def.height - 8}
+            rx={10}
+            fill="#d49a2a"
+            stroke={isSelected ? "#18181b" : "#b8821d"}
+            strokeWidth={isSelected ? 2 : 1}
           />
-          <text x={56} y={19} textAnchor="middle" className="fill-zinc-300 text-[9px] font-medium uppercase tracking-wider">
-            {mode === "current" ? "Ammeter" : "Voltmeter"}
-          </text>
-          <rect x={12} y={26} width={88} height={38} rx={9} fill="#e7e5e4" />
-          <text x={56} y={50} textAnchor="middle" className="fill-zinc-900 text-[13px] font-mono font-semibold">
+          {/* Wide LCD */}
+          <rect x={8} y={8} width={116} height={38} rx={5} fill="#3f3f46" />
+          <rect x={11} y={11} width={110} height={32} rx={3} fill="#cfd7da" />
+          <text x={66} y={32} textAnchor="middle" className="fill-zinc-900 text-[13px] font-mono font-semibold">
             {valText}
           </text>
-          <circle cx={56} cy={84} r={12} fill="#27272a" />
-          <line x1={56} y1={84} x2={mode === "current" ? 64 : 48} y2={78} stroke="#e4e4e7" strokeWidth={2} strokeLinecap="round" />
-          <text x={34} y={108} textAnchor="middle" className="fill-zinc-200 text-[9px] font-mono">+</text>
-          <text x={78} y={108} textAnchor="middle" className="fill-zinc-400 text-[9px] font-mono">-</text>
+          {/* A / V / R mode circles on right */}
+          {[
+            { label: "A", cy: 14, active: mode === "current" },
+            { label: "V", cy: 27, active: mode === "voltage" },
+            { label: "R", cy: 40, active: false },
+          ].map((b) => (
+            <g key={b.label}>
+              <circle
+                cx={138}
+                cy={b.cy}
+                r={5.5}
+                fill={b.active ? "#27272a" : "#e7b95a"}
+                stroke="#3f3f46"
+                strokeWidth={0.9}
+              />
+              <text
+                x={138}
+                y={b.cy + 2.5}
+                textAnchor="middle"
+                className={`${b.active ? "fill-white" : "fill-zinc-900"} text-[7px] font-mono font-semibold`}
+              >
+                {b.label}
+              </text>
+            </g>
+          ))}
+          {/* Bottom test lead stubs */}
+          <rect x={64} y={54} width={4} height={6} rx={1} fill="#27272a" />
+          <rect x={82} y={54} width={4} height={6} rx={1} fill="#991b1b" />
         </g>
       );
     }
@@ -385,7 +545,6 @@ export function ComponentGraphic({
             stroke={isSelected ? "#18181b" : "#18181b"}
             strokeWidth={isSelected ? 1.8 : 1}
           />
-          {/* Cathode silver band on right */}
           <rect x={54} y={7} width={5} height={18} fill="#d4d4d8" />
           <text x={42} y={31} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
             {mat === "ge" ? "1N34A" : "1N4007"}
@@ -409,7 +568,6 @@ export function ComponentGraphic({
             stroke={isSelected ? "#18181b" : "#574031"}
             strokeWidth={isSelected ? 1.8 : 1}
           />
-          {/* Cathode dark band on right */}
           <rect x={54} y={7} width={5} height={18} fill="#18181b" />
           <text x={42} y={31} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
             Z {vz}V
@@ -424,7 +582,7 @@ export function ComponentGraphic({
         <g>
           <line x1={4} y1={22} x2={22} y2={22} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
           <line x1={46} y1={22} x2={64} y2={22} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
-          {isLit && <circle cx={34} cy={22} r={18} fill="#a16207" opacity={0.22} />}
+          {isLit && <circle cx={34} cy={22} r={18} fill="#ca8a04" opacity={0.25} />}
           <circle
             cx={34}
             cy={22}
