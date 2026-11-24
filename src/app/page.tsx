@@ -1,69 +1,97 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useEffect, useState } from "react";
+import { Cpu, MessageSquare } from "lucide-react";
+import { CircuitWorkbench } from "@/components/workbench/CircuitWorkbench";
+import { VivaSection } from "@/components/VivaSection";
+
+const STORAGE_KEY = "edc_lab_viva_v1";
+
+export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<"studio" | "viva">("studio");
+  const [readyViva, setReadyViva] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setReadyViva(JSON.parse(saved) as string[]);
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
+
+  const handleToggleVivaReady = (id: string) => {
+    setReadyViva((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id];
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // Ignore storage errors
+      }
+      return next;
+    });
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-[#f6f6f5] text-zinc-900">
+      <div className="mx-auto max-w-[1440px] px-4 py-4 space-y-3">
+        {/* Minimal Top Header */}
+        <header className="rounded-3xl bg-white px-5 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-2xl bg-zinc-900 text-white flex items-center justify-center">
+              <Cpu className="h-4 w-4" />
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold tracking-tight text-zinc-900">
+                EDC Lab Studio
+              </h1>
+              <p className="text-[11px] text-zinc-500">
+                Interactive Circuit Workbench · CSE-216
+              </p>
+            </div>
+          </div>
+
+          <nav className="flex items-center gap-1 rounded-full bg-zinc-100 p-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("studio")}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === "studio"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900"
+              }`}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <Cpu className="h-3.5 w-3.5" />
+              <span>Circuit Studio</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("viva")}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === "viva"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900"
+              }`}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              <MessageSquare className="h-3.5 w-3.5" />
+              <span>Viva Prep</span>
+            </button>
+          </nav>
+        </header>
+
+        <main>
+          {activeTab === "studio" ? (
+            <CircuitWorkbench />
+          ) : (
+            <VivaSection
+              readyVivaIds={readyViva}
+              onToggleReady={handleToggleVivaReady}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
