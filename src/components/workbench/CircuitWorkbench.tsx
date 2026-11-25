@@ -1069,7 +1069,7 @@ export function CircuitWorkbench() {
           )}
 
           {simResult && simResult.errors.length === 0 && simResult.warnings.length > 0 && (
-            <div className="absolute top-14 left-3 z-20 max-w-md rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 px-4 py-2 text-[11px]">
+            <div className="absolute top-14 left-3 z-20 max-w-md rounded-2xl bg-zinc-100/95 backdrop-blur-xs text-zinc-700 px-4 py-2 text-[11px]">
               {simResult.warnings[0]}
             </div>
           )}
