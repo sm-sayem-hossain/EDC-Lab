@@ -68,111 +68,85 @@ function placeOnBB(
 
 export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   // =========================================================================
-  // EXP 01: Introduction to Electronic Devices and Circuits Lab (R, C, L)
+  // EXP 01: Introduction to Electronic Devices and Circuits Lab (PDF pp. 3-7)
   // =========================================================================
   {
     id: "exp-1",
     number: "01",
-    shortTitle: "Instruments & RLC",
+    shortTitle: "Lab Instruments",
     title: "Introduction to Electronic Devices and Circuits Lab",
     objective:
-      "Operate the Trainer Board, Signal Generator (SFG-1002), and Dual-Channel Oscilloscope while observing Resistor, Capacitor, and Inductor AC responses.",
+      "Introduce the basic lab equipment and passive electronic components: Trainer Board, Signal Generator, Oscilloscope, Resistors, Capacitors, and Inductors.",
     steps: [
       {
         id: "exp1-s1",
-        title: "Step 1: Pure Resistive Circuit (In Phase)",
+        title: "1. Trainer Board (Breadboard)",
         instruction:
-          "Place a 1 kOhm resistor (col 3-8) and 10 kOhm load resistor (col 8 to GND). Feed 10 Vpp 1 kHz Sine from Signal Generator to col 3.",
+          "A compact platform used for constructing and testing electronic circuits without soldering. It contains built-in power supply terminals and connecting sockets.",
         observation:
-          "CH1 (Input) and CH2 (Output) are completely in phase (0 deg phase shift), verifying Ohm's Law.",
-        components: [
-          BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
-          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("rl", "resistor", 8, 338, 90, { resistance: 10000 }),
-        ],
-        wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w4", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
-        ],
+          "Top/bottom rails are connected horizontally; middle 5-hole columns (a-e and f-j) are connected vertically.",
+        components: [BASE_BB],
+        wires: [],
       },
       {
         id: "exp1-s2",
-        title: "Step 2: RC Network (Current Leads Voltage)",
+        title: "2. Signal Generator",
         instruction:
-          "Replace the vertical load at col 8 with a 0.1 uF Capacitor to the ground rail (10 Vpp, 1 kHz Sine).",
+          "Produces electrical waveforms of various shapes — Sine, Square, and Triangular — to provide an input signal to a circuit.",
         observation:
-          "Capacitor causes current to lead voltage; CH2 voltage across C lags CH1 due to capacitive reactance Xc.",
+          "Click the Signal Generator to adjust Waveform (Sine/Square/Triangle), Amplitude (Vpp), and Frequency (Hz).",
         components: [
-          BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
-          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("c1", "capacitor", 8, 346, 90, { capacitance: 0.1 }),
+          { id: "fg1", type: "func-gen", x: 300, y: 180, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
         ],
-        wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w4", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
-        ],
+        wires: [],
       },
       {
         id: "exp1-s3",
-        title: "Step 3: RL Network (Voltage Leads Current)",
+        title: "3. Oscilloscope",
         instruction:
-          "Swap the capacitor at col 8 for a 100 mH Inductor to the ground rail with 10 Vpp 1 kHz Sine input.",
+          "An electronic test instrument that graphically displays varying voltages of one or more signals as a function of time.",
         observation:
-          "Inductor causes voltage to lead current; CH2 across L leads CH1 in phase (XL = 2*pi*f*L).",
+          "Has CH1 and CH2 probes to observe waveforms and phase differences. Use 'Open Scope' in the toolbar when needed.",
         components: [
-          BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
-          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("l1", "inductor", 8, 338, 90, { inductance: 100 }),
+          { id: "sc1", type: "oscilloscope", x: 320, y: 160, rotation: 0, props: {} },
         ],
-        wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w4", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
-        ],
+        wires: [],
       },
       {
         id: "exp1-s4",
-        title: "Step 4: Square Wave RC Transient",
+        title: "4. Resistor",
         instruction:
-          "Switch the Function Generator to Square Wave (10 Vpp, 1 kHz) on the RC network (1 kOhm + 0.1 uF).",
+          "A passive two-terminal component that implements electrical resistance to reduce current flow, adjust signal levels, and divide voltages.",
         observation:
-          "CH2 displays exponential capacitor charging and discharging curves with time constant tau = R * C = 0.1 ms.",
+          "Resistors obey Ohm's law, with voltage and current completely in phase (0 deg phase difference).",
         components: [
-          BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
-          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("c1", "capacitor", 8, 346, 90, { capacitance: 0.1 }),
+          { id: "r1", type: "resistor", x: 356, y: 224, rotation: 0, props: { resistance: 1000 } },
         ],
-        wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w4", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+        wires: [],
+      },
+      {
+        id: "exp1-s5",
+        title: "5. Capacitor",
+        instruction:
+          "An energy storage device (polarized or non-polarized) commonly used in circuits for filtering, timing, coupling, and decoupling.",
+        observation:
+          "Capacitors cause current to lead voltage.",
+        components: [
+          { id: "c1", type: "capacitor", x: 364, y: 218, rotation: 0, props: { capacitance: 10 } },
         ],
+        wires: [],
+      },
+      {
+        id: "exp1-s6",
+        title: "6. Inductor",
+        instruction:
+          "Coil-shaped passive component that stores energy in the form of a magnetic field when current flows through it.",
+        observation:
+          "Inductors cause voltage to lead current. Often used with capacitors to form LC circuits.",
+        components: [
+          { id: "l1", type: "inductor", x: 356, y: 222, rotation: 0, props: { inductance: 100 } },
+        ],
+        wires: [],
       },
     ],
   },
