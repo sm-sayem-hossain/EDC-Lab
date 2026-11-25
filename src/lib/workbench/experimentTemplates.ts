@@ -847,53 +847,299 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Full-Wave Bridge",
     title: "Study of Full-Wave Bridge Diode Rectifier Circuit",
     objective:
-      "Build a 4-diode 1N4007 Bridge Rectifier on the breadboard and compare Unfiltered, 0.47 uF, 10 uF, and 47 uF filtering.",
+      "Build a 4-diode 1N4007 Bridge Rectifier on the breadboard step by step and compare unfiltered output with 0.47 uF, 10 uF, and 47 uF filter capacitors.",
     steps: [
+      // --- Step 1: Gather ---
       {
         id: "exp5-s1",
-        title: "Step 1: Unfiltered 4-Diode Bridge",
+        title: "Step 1: Gather Components and Instruments",
         instruction:
-          "Wire D1 (col 3->8, row B), D2 (col 4->9, row D), D3 (col 8->3, row G), D4 (col 9->4, row I). Feed 20 Vpp 1 kHz Sine across col 3 & 4.",
+          "Gather: 4 x 1N4007 diodes (D1-D4), 1 x 1 kOhm resistor, 1 x Function Generator, 1 x Oscilloscope, and connecting wires.",
         observation:
-          "PDF Table match: Both half cycles rectify at 2 kHz (Vmax ~8.6 V, Vrms ~5.8 V, Vavg ~5.0 V, Ripple ~0.55).",
+          "All components and instruments are on the bench. The breadboard is empty and ready.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
+        ],
+        wires: [],
+      },
+      // --- Step 2: Place D1 ---
+      {
+        id: "exp5-s2",
+        title: "Step 2: Place D1 (Anode at c3, Cathode at c8)",
+        instruction:
+          "Insert D1 horizontally across row c, Anode (+) at c3, Cathode (-) at c8. This diode conducts during the positive half-cycle of input A.",
+        observation:
+          "D1 sits in row c, spanning columns 3 to 8.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+        ],
+        wires: [],
+      },
+      // --- Step 3: Place D2 ---
+      {
+        id: "exp5-s3",
+        title: "Step 3: Place D2 (Anode at d4, Cathode at d9)",
+        instruction:
+          "Insert D2 horizontally across row d, Anode (+) at d4, Cathode (-) at d9. This diode conducts during the positive half-cycle of input B.",
+        observation:
+          "D2 sits in row d, spanning columns 4 to 9.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+        ],
+        wires: [],
+      },
+      // --- Step 4: Place D3 (reversed) ---
+      {
+        id: "exp5-s4",
+        title: "Step 4: Place D3 Reversed (Cathode at g3, Anode at g8)",
+        instruction:
+          "Insert D3 horizontally reversed across row g, Cathode (-) at g3, Anode (+) at g8. This diode conducts during the negative half-cycle, routing current upward through the load.",
+        observation:
+          "D3 sits in row g, facing the opposite direction of D1.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+        ],
+        wires: [],
+      },
+      // --- Step 5: Place D4 (reversed) ---
+      {
+        id: "exp5-s5",
+        title: "Step 5: Place D4 Reversed (Cathode at i4, Anode at i9)",
+        instruction:
+          "Insert D4 horizontally reversed across row i, Cathode (-) at i4, Anode (+) at i9. This completes the 4-diode bridge arrangement.",
+        observation:
+          "D4 sits in row i, facing the opposite direction of D2. The bridge diamond pattern is now formed.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+        ],
+        wires: [],
+      },
+      // --- Step 6: Place Load Resistor ---
+      {
+        id: "exp5-s6",
+        title: "Step 6: Place 1 kOhm Load Resistor",
+        instruction:
+          "Insert the 1 kOhm resistor vertically at column 14. Its top pin (+) is at d14 (output positive node) and its bottom pin (-) is at g14 (output negative node).",
+        observation:
+          "The load resistor is now in place at column 14. The bridge output will appear across it.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [],
+      },
+      // --- Step 7: Connect bridge internal nodes ---
+      {
+        id: "exp5-s7",
+        title: "Step 7: Join Top Bridge Node and Load Top (Red)",
+        instruction:
+          "Connect a Red wire from a8 to a9 (joining D1 Cathode and D2 Cathode). Connect another Red wire from b9 to b14 (bringing the positive output node to the load top). These are the positive (+) output rails.",
+        observation:
+          "The cathodes of D1 and D2 are now shorted together and connected to the top of the load resistor.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
           placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
           placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
           placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
           placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#475569" },
-          { id: "w4", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#475569" },
-          { id: "w5", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#4d5d46" },
-          { id: "w6", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w8", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#27272a" },
-          { id: "w9", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#27272a" },
-          { id: "w10", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#78716c" },
-          { id: "w11", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#78716c" },
-          { id: "w12", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#27272a" },
-          { id: "w13", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#27272a" },
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
         ],
       },
+      // --- Step 8: Ground bottom nodes ---
       {
-        id: "exp5-s2",
-        title: "Step 2: Bridge with 0.47 uF Capacitor",
+        id: "exp5-s8",
+        title: "Step 8: Ground Bottom Bridge Nodes and Load (Black)",
         instruction:
-          "Add a 0.47 uF filter capacitor at col 12 in parallel with the 1 kOhm load resistor.",
+          "Connect Black wires: j8 to bn_8 (D3 Cathode to ground), j9 to bn_9 (D4 Cathode to ground), j14 to bn_14 (Load bottom to ground). These are the negative (-) output rails.",
         observation:
-          "PDF Table match: Ripple drops significantly (Vmax ~8.5 V, Vavg ~6.7-7.7 V) as the bridge recharges twice per cycle.",
+          "The cathodes of D3 and D4 and the bottom of the load resistor are all grounded to the bottom (-) rail.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w4", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 9: Connect Function Generator ---
+      {
+        id: "exp5-s9",
+        title: "Step 9: Connect Function Generator (AC Input)",
+        instruction:
+          "Connect Function Generator (+) [Red] to a3 (D1 Anode, input node A). Connect Function Generator (-) [Black] to a4 (D2 Anode, input node B). The bridge receives a 20 Vpp 1 kHz sine wave across these two nodes.",
+        observation:
+          "The AC input is now fed into the bridge. Node a3 is input A (+) and a4 is input B (-).",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w4", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w6", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 10: Connect bridge mid-to-mid jumpers ---
+      {
+        id: "exp5-s10",
+        title: "Step 10: Join Top-to-Bottom Input Nodes (e3 to f3, e4 to f4)",
+        instruction:
+          "Connect Red wire e3 to f3 (bridging input A across the gap). Connect Black wire e4 to f4 (bridging input B across the gap). This links the top and bottom halves of the bridge for each input node.",
+        observation:
+          "The AC input now reaches both the top diodes (D1, D2) and the bottom diodes (D3, D4) through the breadboard gap jumpers.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w4", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w6", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#18181b" },
+          { id: "w8", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 11: Connect Oscilloscope CH1 (input) ---
+      {
+        id: "exp5-s11",
+        title: "Step 11: Connect Oscilloscope CH1 (AC Input Monitor)",
+        instruction:
+          "Connect Oscilloscope CH1 (+) [Red] to c3 (input node A) and CH1 GND (-) [Black] to c4 (input node B). CH1 will show the raw 20 Vpp sine wave input.",
+        observation:
+          "CH1 now monitors the AC input waveform entering the bridge.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w4", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w6", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#18181b" },
+          { id: "w8", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#18181b" },
+          { id: "w10", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#b91c1c" },
+          { id: "w11", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 12: Connect Oscilloscope CH2 (output) --- unfiltered reading
+      {
+        id: "exp5-s12",
+        title: "Step 12: Connect Oscilloscope CH2 (Output) - Unfiltered Reading",
+        instruction:
+          "Connect Oscilloscope CH2 (+) [Red] to a14 (Load top, rectified output +) and CH2 GND (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to observe. Expected: Vmax ~8.6 V, Vavg ~5.0 V, Ripple ~0.55.",
+        observation:
+          "Both half-cycles now appear on CH2, confirming full-wave rectification. The output frequency is 2 kHz (double the input).",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
+          placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
+          placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
+          placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
+          placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w4", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w6", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#18181b" },
+          { id: "w8", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#18181b" },
+          { id: "w10", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#b91c1c" },
+          { id: "w11", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#18181b" },
+          { id: "w12", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#b91c1c" },
+          { id: "w13", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 13: Add 0.47 uF cap ---
+      {
+        id: "exp5-s13",
+        title: "Step 13: Add 0.47 uF Filter Capacitor",
+        instruction:
+          "Insert a 0.47 uF capacitor vertically at column 12. Its (+) lead is at d12 (connected to positive output node) and its (-) lead is at g12. Connect j12 to bn_12 [Black] to ground the negative lead.",
+        observation:
+          "Vavg rises and ripple drops compared to the unfiltered output. The cap charges and partially holds the voltage between cycles.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
           placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
           placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
           placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
@@ -901,35 +1147,36 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#475569" },
-          { id: "w4", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#475569" },
-          { id: "w5", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#4d5d46" },
-          { id: "w6", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#4d5d46" },
-          { id: "w8", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w9", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#27272a" },
-          { id: "w10", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#27272a" },
-          { id: "w11", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#27272a" },
-          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#78716c" },
-          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#78716c" },
-          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#27272a" },
-          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#27272a" },
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w6", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#18181b" },
+          { id: "w7", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w8", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#18181b" },
+          { id: "w10", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#b91c1c" },
+          { id: "w11", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#18181b" },
+          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#b91c1c" },
+          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#18181b" },
+          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#b91c1c" },
+          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
+      // --- Step 14: Swap to 10 uF ---
       {
-        id: "exp5-s3",
-        title: "Step 3: Bridge with 10 uF Capacitor",
+        id: "exp5-s14",
+        title: "Step 14: Swap to 10 uF Capacitor",
         instruction:
-          "Increase the filter capacitor to 10 uF at col 12 and observe ripple collapse.",
+          "Remove the 0.47 uF capacitor and insert a 10 uF capacitor at the same column 12 position. Keep all wires unchanged. Check CH2 in the Scope.",
         observation:
-          "PDF Table match: Vavg stabilizes near ~8.2 V with tiny ripple (~0.01).",
+          "Ripple collapses further. Expected: Vavg ~8.2 V, Ripple ~0.01.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
           placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
           placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
           placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
@@ -937,35 +1184,36 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#475569" },
-          { id: "w4", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#475569" },
-          { id: "w5", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#4d5d46" },
-          { id: "w6", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#4d5d46" },
-          { id: "w8", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w9", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#27272a" },
-          { id: "w10", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#27272a" },
-          { id: "w11", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#27272a" },
-          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#78716c" },
-          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#78716c" },
-          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#27272a" },
-          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#27272a" },
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w6", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#18181b" },
+          { id: "w7", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w8", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#18181b" },
+          { id: "w10", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#b91c1c" },
+          { id: "w11", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#18181b" },
+          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#b91c1c" },
+          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#18181b" },
+          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#b91c1c" },
+          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
+      // --- Step 15: Swap to 47 uF ---
       {
-        id: "exp5-s4",
-        title: "Step 4: Bridge with 47 uF Capacitor",
+        id: "exp5-s15",
+        title: "Step 15: Swap to 47 uF Capacitor - Final Reading",
         instruction:
-          "Use the 47 uF capacitor for the smoothest DC output.",
+          "Remove the 10 uF capacitor and insert a 47 uF capacitor at column 12. Keep all wires unchanged. Check CH2 in the Scope for the final PDF table reading.",
         observation:
-          "PDF Table match: Vavg ~8.3 V with near-zero ripple (< 0.003), closely resembling pure DC.",
+          "Output is nearly pure DC. Expected: Vavg ~8.3 V, Ripple < 0.003.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 20, freq: 1000 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("d1", "diode", 3, 282, 0, { material: "si" }),
+          placeOnBB("d1", "diode", 3, 298, 0, { material: "si" }),
           placeOnBB("d2", "diode", 4, 314, 0, { material: "si" }),
           placeOnBB("d3", "diode", 3, 378, 180, { material: "si" }),
           placeOnBB("d4", "diode", 4, 410, 180, { material: "si" }),
@@ -973,21 +1221,21 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("rl", "resistor", 14, 338, 90, { resistance: 1000 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#475569" },
-          { id: "w4", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#475569" },
-          { id: "w5", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#4d5d46" },
-          { id: "w6", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#4d5d46" },
-          { id: "w7", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#4d5d46" },
-          { id: "w8", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w9", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#27272a" },
-          { id: "w10", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#27272a" },
-          { id: "w11", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#27272a" },
-          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#78716c" },
-          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#78716c" },
-          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#27272a" },
-          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#27272a" },
+          { id: "w1", from: { compId: "bb1", pinId: "a8" }, to: { compId: "bb1", pinId: "a9" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "b9" }, to: { compId: "bb1", pinId: "b12" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "b12" }, to: { compId: "bb1", pinId: "b14" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w5", from: { compId: "bb1", pinId: "j9" }, to: { compId: "bb1", pinId: "bn_9" }, color: "#18181b" },
+          { id: "w6", from: { compId: "bb1", pinId: "j12" }, to: { compId: "bb1", pinId: "bn_12" }, color: "#18181b" },
+          { id: "w7", from: { compId: "bb1", pinId: "j14" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w8", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "a4" }, color: "#18181b" },
+          { id: "w10", from: { compId: "bb1", pinId: "e3" }, to: { compId: "bb1", pinId: "f3" }, color: "#b91c1c" },
+          { id: "w11", from: { compId: "bb1", pinId: "e4" }, to: { compId: "bb1", pinId: "f4" }, color: "#18181b" },
+          { id: "w12", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "c3" }, color: "#b91c1c" },
+          { id: "w13", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "c4" }, color: "#18181b" },
+          { id: "w14", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a14" }, color: "#b91c1c" },
+          { id: "w15", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
     ],
@@ -1002,15 +1250,67 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Diode Clipper",
     title: "Study of Diode Clipper Circuits",
     objective:
-      "Wire biased positive, negative, and dual diode clippers on the breadboard using a 19.6 Vpp 1 kHz Triangular wave (per lab report).",
+      "Wire a positive clipper, then a negative clipper, then a dual clipper on the breadboard using a 19.6 Vpp 1 kHz Triangular wave input.",
     steps: [
+      // --- Step 1: Gather ---
       {
         id: "exp6-s1",
-        title: "Step 1: Forward Biased Positive Clipper (+3.0 V)",
+        title: "Step 1: Gather Components and Instruments",
         instruction:
-          "Place 1 kOhm resistor (col 3-8) and vertical 1N4007 diode (col 8, Anode up, Cathode down). Connect DC Supply (+2.3 V) to bottom of diode with 19.6 Vpp 1 kHz Triangle input.",
+          "Gather: 1 x 1 kOhm resistor, 1 x 1N4007 diode, 1 x DC power supply, 1 x Function Generator, 1 x Oscilloscope, and connecting wires.",
         observation:
-          "PDF Table match: Positive peak clips flat near +3.00 V (2.3 V + 0.7 V) while negative peak passes to -9.8 V (Vp-p ~ 12.8 V).",
+          "All components are ready. The breadboard is empty.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+        ],
+        wires: [],
+      },
+      // --- Step 2: Place Resistor ---
+      {
+        id: "exp6-s2",
+        title: "Step 2: Place 1 kOhm Resistor (c3 to c8)",
+        instruction:
+          "Insert the 1 kOhm resistor horizontally in row c, with its left pin (+) at c3 and right pin (-) at c8. This is the series resistor in the clipper circuit.",
+        observation:
+          "The resistor occupies row c from column 3 to column 8.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+        ],
+        wires: [],
+      },
+      // --- Step 3: Place Diode (Anode up = positive clipper) ---
+      {
+        id: "exp6-s3",
+        title: "Step 3: Place Diode Vertically at Column 8 (Anode at d8, Cathode at g8)",
+        instruction:
+          "Insert the 1N4007 diode vertically at column 8, with Anode (+) at d8 (connected to resistor right end) and Cathode (-) at g8 (pointing down toward ground). This is the positive clipper orientation.",
+        observation:
+          "The diode stands vertically at column 8. When input exceeds the bias voltage, the diode conducts and clips the positive peak.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [],
+      },
+      // --- Step 4: Connect DC Supply (+) to Diode Cathode ---
+      {
+        id: "exp6-s4",
+        title: "Step 4: Connect DC Supply (+) to Diode Cathode at j8 (Red)",
+        instruction:
+          "Connect DC Supply (+) [Red] to j8 (bottom of diode, Cathode side). The DC supply sets the clipping level: 2.3 V + 0.7 V diode drop = 3.0 V clip level.",
+        observation:
+          "The DC bias is now connected to the diode cathode. No circuit is yet complete.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
@@ -1020,23 +1320,185 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#8c4a3c" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#27272a" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
         ],
       },
+      // --- Step 5: Connect DC Supply (-) to Ground ---
       {
-        id: "exp6-s2",
-        title: "Step 2: Reverse Biased Negative Clipper (-3.2 V)",
+        id: "exp6-s5",
+        title: "Step 5: Connect DC Supply (-) to Ground Rail at bn_6 (Black)",
         instruction:
-          "Flip the Diode 180 deg (Cathode up at col 8) and reverse DC Supply terminals so -2.5 V biases the diode anode.",
+          "Connect DC Supply (-) [Black] to bn_6 (bottom ground rail). This completes the DC bias reference loop.",
         observation:
-          "PDF Table match: Negative peak clips flat near -3.20 V while the positive peak passes cleanly up to +9.8 V (Vp-p ~ 13.0 V).",
+          "The DC supply is now fully connected. Its positive terminal biases the diode cathode and its negative returns to ground.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 6: Connect Function Generator (+) ---
+      {
+        id: "exp6-s6",
+        title: "Step 6: Connect Function Generator (+) to a3 (Red)",
+        instruction:
+          "Connect Function Generator (+) [Red] to a3 (left end of resistor, input node). The 19.6 Vpp triangle wave enters the circuit from this point.",
+        observation:
+          "The input signal is now connected to the resistor input.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+        ],
+      },
+      // --- Step 7: Connect Function Generator (-) ---
+      {
+        id: "exp6-s7",
+        title: "Step 7: Connect Function Generator (-) to Ground Rail at bn_2 (Black)",
+        instruction:
+          "Connect Function Generator (-) [Black] to bn_2 (bottom ground rail). This completes the input signal return path.",
+        observation:
+          "The function generator is fully wired. The triangle wave now drives the clipper circuit.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 8: Connect Oscilloscope CH1 (+) ---
+      {
+        id: "exp6-s8",
+        title: "Step 8: Connect Oscilloscope CH1 (+) to b3 (Red) - Input Monitor",
+        instruction:
+          "Connect Oscilloscope CH1 (+) [Red] to b3 (input node, before resistor). CH1 will display the original unclipped triangle waveform.",
+        observation:
+          "CH1 probe is now on the input node. The full 19.6 Vpp triangle wave will appear on CH1.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+        ],
+      },
+      // --- Step 9: Connect Oscilloscope CH1 (-) ---
+      {
+        id: "exp6-s9",
+        title: "Step 9: Connect Oscilloscope CH1 (-) to Ground at bn_14 (Black)",
+        instruction:
+          "Connect Oscilloscope CH1 (-) [Black] to bn_14 (ground rail). CH1 is now fully wired to monitor the input.",
+        observation:
+          "CH1 is completely connected. CH1 GND shares the common ground reference.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 10: Connect Oscilloscope CH2 (+) ---
+      {
+        id: "exp6-s10",
+        title: "Step 10: Connect Oscilloscope CH2 (+) to a8 (Red) - Output Monitor",
+        instruction:
+          "Connect Oscilloscope CH2 (+) [Red] to a8 (output node, after resistor and at diode anode). CH2 will display the clipped output waveform.",
+        observation:
+          "CH2 probe is on the output node. The clipped signal will appear on CH2.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+        ],
+      },
+      // --- Step 11: Connect Oscilloscope CH2 (-) --- Positive clipper complete
+      {
+        id: "exp6-s11",
+        title: "Step 11: Connect Oscilloscope CH2 (-) to Ground at bn_16 (Black) - Positive Clipper Reading",
+        instruction:
+          "Connect Oscilloscope CH2 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to compare CH1 (input) and CH2 (output). Expected: positive peak clipped at +3.0 V, negative peak intact at -9.8 V.",
+        observation:
+          "PDF Table match for positive clipper: Vclip = +3.0 V (2.3 V bias + 0.7 V diode drop). Vp-p output ~12.8 V.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 12: Flip diode for negative clipper ---
+      {
+        id: "exp6-s12",
+        title: "Step 12: Flip Diode 180 deg for Negative Clipper (Cathode at d8, Anode at g8)",
+        instruction:
+          "Remove the diode from column 8 and re-insert it reversed: Cathode (-) at d8 (top, toward resistor) and Anode (+) at g8 (bottom). Change DC Supply voltage to 2.5 V. Connect DC Supply (-) [Black] to j8 and DC Supply (+) [Red] to bn_6 (reversed polarity to apply negative bias).",
+        observation:
+          "The diode now faces the opposite direction. Negative half-cycles will now be clipped at -3.2 V.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
@@ -1046,23 +1508,24 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("d1", "diode", 8, 338, 270, { material: "si" }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "j8" }, color: "#475569" },
-          { id: "w4", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#27272a" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+          { id: "w1", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "j8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
+      // --- Step 13: Dual clipper ---
       {
-        id: "exp6-s3",
-        title: "Step 3: Dual Clipper (+1.7 V / -4.0 V, Q2)",
+        id: "exp6-s13",
+        title: "Step 13: Dual Clipper - Add Second Diode at Column 11",
         instruction:
-          "Add a second diode branch at col 11 with +1.0 V and -3.3 V DC biases on a 10 Vpp (5 V amplitude) input (PDF Report Q2).",
+          "Keep D1 in place (Cathode at d8, Anode at g8). Add D2 vertically at column 11 with Anode (+) at d11 and Cathode (-) at g11 (forward orientation). Connect a jumper Red wire from b8 to b11 (linking the two diode nodes). Set FG to 10 Vpp Sine. Connect DC1 (+) [Red] to j8 (bias = +1.0 V) and DC1 (-) [Black] to bn_6.",
         observation:
-          "Positive peaks clip at +1.7 V (1.0 + 0.7 V) and negative peaks clip at -4.0 V (-3.3 - 0.7 V).",
+          "The output node between the two diodes is shared. Positive peaks clip at +1.7 V and negative peaks clip at -3.2 V.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
@@ -1074,17 +1537,17 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("d2", "diode", 11, 338, 270, { material: "si" }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
-          { id: "w4", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#8c4a3c" },
-          { id: "w5", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#27272a" },
-          { id: "w6", from: { compId: "dc2", pinId: "neg" }, to: { compId: "bb1", pinId: "j11" }, color: "#475569" },
-          { id: "w7", from: { compId: "dc2", pinId: "pos" }, to: { compId: "bb1", pinId: "bn_10" }, color: "#27272a" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w9", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w10", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
-          { id: "w11", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w6", from: { compId: "dc2", pinId: "neg" }, to: { compId: "bb1", pinId: "j11" }, color: "#18181b" },
+          { id: "w7", from: { compId: "dc2", pinId: "pos" }, to: { compId: "bb1", pinId: "bn_10" }, color: "#b91c1c" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w10", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w11", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
     ],
@@ -1101,13 +1564,80 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     objective:
       "Shift a 1 kHz Square wave vertically upward or downward without altering its peak-to-peak shape using a 0.1 uF capacitor, 1N4007 diode, and 100 kOhm resistor.",
     steps: [
+      // --- Step 1: Gather ---
       {
         id: "exp7-s1",
-        title: "Step 1: Positive Clamper (Shift Upward)",
+        title: "Step 1: Gather Components and Instruments",
         instruction:
-          "Place 0.1 uF Capacitor across col 3-7, vertical 1N4007 Diode at col 7 (Cathode up, Anode to ground), and 100 kOhm Load at col 11. Feed 10 Vpp 1 kHz Square wave.",
+          "Gather: 1 x 0.1 uF capacitor, 1 x 1N4007 diode, 1 x 100 kOhm resistor, 1 x Function Generator, 1 x Oscilloscope, and connecting wires.",
         observation:
-          "PDF Table match: The 10 Vpp square wave shifts upward without changing shape: Vmin sits near -0.6 V and Vmax reaches +9.4 V.",
+          "All components are ready. The breadboard is empty.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+        ],
+        wires: [],
+      },
+      // --- Step 2: Place Capacitor ---
+      {
+        id: "exp7-s2",
+        title: "Step 2: Place 0.1 uF Capacitor (c3 to c7)",
+        instruction:
+          "Insert the 0.1 uF capacitor horizontally in row c, with its left pin (+) at c3 and right pin (-) at c7. This series capacitor blocks DC and passes the AC square wave.",
+        observation:
+          "The capacitor occupies row c from column 3 to column 7.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+        ],
+        wires: [],
+      },
+      // --- Step 3: Place Diode (Positive Clamper: Cathode at d7, Anode at g7) ---
+      {
+        id: "exp7-s3",
+        title: "Step 3: Place Diode Vertically at Column 7 (Cathode at d7, Anode at g7)",
+        instruction:
+          "Insert the 1N4007 diode vertically at column 7 with Cathode (-) at d7 (top, connected to capacitor output) and Anode (+) at g7 (bottom, toward ground). This is the positive clamper orientation.",
+        observation:
+          "The diode stands at column 7. Its cathode is at the top (output side of capacitor) and anode points to ground.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+        ],
+        wires: [],
+      },
+      // --- Step 4: Place 100 kOhm Load Resistor ---
+      {
+        id: "exp7-s4",
+        title: "Step 4: Place 100 kOhm Load Resistor at Column 11",
+        instruction:
+          "Insert the 100 kOhm resistor vertically at column 11. Its top pin (+) is at d11 (output positive node) and bottom pin (-) is at g11. The large resistance ensures the capacitor does not discharge quickly between cycles.",
+        observation:
+          "The load resistor is placed at column 11. It will appear in parallel with the output.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [],
+      },
+      // --- Step 5: Connect b7 to b11 (output node jumper) ---
+      {
+        id: "exp7-s5",
+        title: "Step 5: Join Diode Output to Load Top (b7 to b11) [Red]",
+        instruction:
+          "Connect a Red wire from b7 (capacitor output / diode cathode node) to b11 (top of load resistor). This connects the clamper output to the load.",
+        observation:
+          "The diode cathode node is now linked to the top of the load resistor.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
@@ -1117,24 +1647,192 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
-          { id: "w4", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#27272a" },
-          { id: "w5", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#4d5d46" },
-          { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
         ],
       },
+      // --- Step 6: Ground diode anode and load bottom ---
       {
-        id: "exp7-s2",
-        title: "Step 2: Negative Clamper (Shift Downward)",
+        id: "exp7-s6",
+        title: "Step 6: Ground Diode Anode at j7 and Load Bottom at j11 (Black)",
         instruction:
-          "Flip the 1N4007 Diode 180 deg on col 7 (Anode up, Cathode to ground rail) with the same Square wave input.",
+          "Connect Black wire from j7 to bn_7 (Diode Anode bottom to ground rail). Connect Black wire from j11 to bn_11 (Load bottom to ground rail). These are the negative (-) returns.",
         observation:
-          "The square wave shifts downward without distortion: Vmax clamps near +0.6 V and Vmin drops to -9.4 V while Vp-p stays 10 V.",
+          "The diode anode and the load bottom are both grounded. The circuit now has a complete path.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 7: Connect FG (+) ---
+      {
+        id: "exp7-s7",
+        title: "Step 7: Connect Function Generator (+) to a3 (Red)",
+        instruction:
+          "Connect Function Generator (+) [Red] to a3 (left end of capacitor, input node). The 10 Vpp 1 kHz square wave enters the clamper through the series capacitor.",
+        observation:
+          "The input signal is now connected to the capacitor input.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+        ],
+      },
+      // --- Step 8: Connect FG (-) ---
+      {
+        id: "exp7-s8",
+        title: "Step 8: Connect Function Generator (-) to Ground at bn_2 (Black)",
+        instruction:
+          "Connect Function Generator (-) [Black] to bn_2 (bottom ground rail). The input signal return path is now complete.",
+        observation:
+          "The function generator is fully wired. The 10 Vpp square wave now drives the clamper input.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 9: Connect Scope CH1 (+) ---
+      {
+        id: "exp7-s9",
+        title: "Step 9: Connect Oscilloscope CH1 (+) to b3 (Red) - Input Monitor",
+        instruction:
+          "Connect Oscilloscope CH1 (+) [Red] to b3 (input node, before capacitor). CH1 will show the original unshifted 10 Vpp square wave.",
+        observation:
+          "CH1 probe is now on the input. The full square wave will appear on CH1.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+        ],
+      },
+      // --- Step 10: Connect Scope CH1 (-) ---
+      {
+        id: "exp7-s10",
+        title: "Step 10: Connect Oscilloscope CH1 (-) to Ground at bn_14 (Black)",
+        instruction:
+          "Connect Oscilloscope CH1 (-) [Black] to bn_14 (ground rail). CH1 is now fully wired to monitor the input square wave.",
+        observation:
+          "CH1 is completely wired. It shares the common ground reference.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 11: Connect Scope CH2 (+) ---
+      {
+        id: "exp7-s11",
+        title: "Step 11: Connect Oscilloscope CH2 (+) to a11 (Red) - Output Monitor",
+        instruction:
+          "Connect Oscilloscope CH2 (+) [Red] to a11 (top of load resistor, clamper output node). CH2 will show the DC-shifted square wave.",
+        observation:
+          "CH2 probe is on the output node. The vertically shifted waveform will appear on CH2.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+        ],
+      },
+      // --- Step 12: Connect Scope CH2 (-) --- Positive clamper reading
+      {
+        id: "exp7-s12",
+        title: "Step 12: Connect Oscilloscope CH2 (-) to Ground at bn_16 (Black) - Positive Clamper Reading",
+        instruction:
+          "Connect Oscilloscope CH2 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to read. Expected: Vmin near -0.6 V, Vmax near +9.4 V. Vp-p stays at 10 V but the whole waveform has shifted upward.",
+        observation:
+          "PDF Table match for positive clamper: The square wave is clamped so its minimum touches -0.6 V (one diode drop below ground) and its top rises to +9.4 V.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 13: Flip diode for negative clamper ---
+      {
+        id: "exp7-s13",
+        title: "Step 13: Flip Diode for Negative Clamper (Anode at d7, Cathode at g7)",
+        instruction:
+          "Remove the diode from column 7 and re-insert it reversed: Anode (+) at d7 (top, toward capacitor output) and Cathode (-) at g7 (bottom, toward ground). All other wires remain exactly as before.",
+        observation:
+          "The diode now faces upward. This reversal shifts the clamping action to the negative direction.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
@@ -1144,44 +1842,15 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
-          { id: "w4", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#27272a" },
-          { id: "w5", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#4d5d46" },
-          { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
-        ],
-      },
-      {
-        id: "exp7-s3",
-        title: "Step 3: Biased Positive Clamper (PDF Fig b)",
-        instruction:
-          "Connect a +2.0 V DC bias battery in series with the diode anode (col 7 bottom) to shift the square wave even further upward.",
-        observation:
-          "PDF Fig (b) match: Vmin shifts up to +1.4 V and Vmax reaches +11.4 V while Vp-p stays 10 V.",
-        components: [
-          BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
-          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
-          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
-          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
-          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
-        ],
-        wires: [
-          { id: "w1", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w3", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
-          { id: "w4", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j7" }, color: "#8c4a3c" },
-          { id: "w5", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#27272a" },
-          { id: "w6", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#475569" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-          { id: "w9", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#4d5d46" },
-          { id: "w10", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#78716c" },
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
     ],
