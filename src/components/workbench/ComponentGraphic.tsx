@@ -516,16 +516,35 @@ export function ComponentGraphic({
       const l = Number(comp.props.inductance ?? 100);
       return (
         <g>
-          <line x1={4} y1={18} x2={20} y2={18} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
-          <line x1={68} y1={18} x2={84} y2={18} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
-          <path
-            d="M 20 18 c 0 -10 12 -10 12 0 c 0 -10 12 -10 12 0 c 0 -10 12 -10 12 0 c 0 -10 12 -10 12 0"
-            fill="none"
-            stroke={isSelected ? "#18181b" : "#52525b"}
-            strokeWidth={2.4}
-            strokeLinecap="round"
+          {/* Leads */}
+          <line x1={4} y1={18} x2={22} y2={18} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
+          <line x1={66} y1={18} x2={84} y2={18} stroke="#71717a" strokeWidth={2.2} strokeLinecap="round" />
+          {/* Inner core */}
+          <rect
+            x={21}
+            y={12}
+            width={46}
+            height={12}
+            rx={3}
+            fill="#3f3f46"
+            stroke={isSelected ? "#18181b" : "#27272a"}
+            strokeWidth={isSelected ? 1.5 : 0.8}
           />
-          <text x={44} y={33} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
+          {/* Copper wire turns */}
+          {[24, 29, 34, 39, 44, 49, 54, 59].map((tx) => (
+            <rect
+              key={tx}
+              x={tx}
+              y={9}
+              width={3.6}
+              height={18}
+              rx={1.8}
+              fill="#b45309"
+              stroke="#78350f"
+              strokeWidth={0.6}
+            />
+          ))}
+          <text x={44} y={35} textAnchor="middle" className="fill-zinc-600 text-[9px] font-mono">
             {l} mH
           </text>
         </g>
