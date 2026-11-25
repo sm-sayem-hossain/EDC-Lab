@@ -152,7 +152,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   },
 
   // =========================================================================
-  // EXP 02: I-V Characteristics of PN Junction Diode (Matches PDF Table 1 & 2)
+  // EXP 02: I-V Characteristics of PN Junction Diode (Step-by-Step Build)
   // =========================================================================
   {
     id: "exp-2",
@@ -160,102 +160,234 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Diode I-V Curve",
     title: "I-V Characteristics of PN Junction Diode",
     objective:
-      "Measure forward and reverse bias current-voltage characteristics of a PN junction diode with R = 1 kOhm using Ammeter and Voltmeter.",
+      "Build the forward and reverse bias diode circuits step by step on a breadboard using a 1 kOhm resistor, 1N4007 PN junction diode, DC power supply, and voltmeters to record Vd, VR, and Id = VR / R.",
     steps: [
       {
         id: "exp2-s1",
-        title: "Step 1: Forward Bias Below Knee (0.5 V)",
+        title: "Step 1: Gather Components & Instruments",
         instruction:
-          "Wire DC Power Supply (0.5 V) -> Ammeter -> 1 kOhm Resistor (col 3-8) -> 1N4007 Diode (col 8-13) -> Ground rail. Voltmeter across Diode.",
+          "Place the Breadboard, 1 kOhm Resistor, 1N4007 PN Junction Diode, DC Power Supply, and two Multimeters (Voltmeter mode) on the bench.",
         observation:
-          "PDF Table 1 match: At Vdc = 0.5 V, Vd is ~0.42-0.44 V and Id is tiny (< 0.1 mA) below the 0.6-0.7 V threshold.",
+          "Preparation complete. Next, we will mount the 1 kOhm resistor onto the breadboard.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0.5 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "r1", type: "resistor", x: 40, y: 240, rotation: 0, props: { resistance: 1000 } },
+          { id: "d1", type: "diode", x: 40, y: 300, rotation: 0, props: { material: "si" } },
         ],
-        wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#27272a" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
-          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#78716c" },
-        ],
+        wires: [],
       },
       {
         id: "exp2-s2",
-        title: "Step 2: Forward Bias Knee (1.0 V)",
+        title: "Step 2: Place 1 kOhm Resistor on Breadboard",
         instruction:
-          "Raise DC Power Supply to 1.0 V on the same circuit and inspect Vd and Id.",
+          "Insert the 1 kOhm limiting resistor horizontally across breadboard columns 3 to 8 on row C.",
         observation:
-          "PDF Table 1 match: At Vdc = 1.0 V, Vd reaches ~0.50 V and Id rises to ~0.50 mA (VR ~ 0.50 V).",
+          "Terminal 1 sits in column 3 and Terminal 2 sits in column 8.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 1.0 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+          { id: "d1", type: "diode", x: 40, y: 300, rotation: 0, props: { material: "si" } },
         ],
-        wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#27272a" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
-          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#78716c" },
-        ],
+        wires: [],
       },
       {
         id: "exp2-s3",
-        title: "Step 3: Forward Bias Conduction (3.0 V)",
+        title: "Step 3: Connect PN Junction Diode (Forward Bias)",
         instruction:
-          "Raise DC Power Supply to 3.0 V and check both Multimeter displays.",
+          "Insert the 1N4007 Diode across columns 8 to 13 on row C so its Anode (P, plain side) joins the resistor at column 8 and its Cathode (N, banded side) sits at column 13. Run a black wire from e13 to the bottom (-) rail.",
         observation:
-          "PDF Table 1 match: Vd stays near ~0.58-0.60 V while Id jumps to ~2.42 mA (VR ~ 2.42 V).",
+          "The resistor and diode are now in series on the breadboard for forward bias.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 3.0 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
           placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
         ],
         wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#27272a" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
-          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#78716c" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
         ],
       },
       {
         id: "exp2-s4",
-        title: "Step 4: Reverse Bias Blocking (3.0 V)",
+        title: "Step 4: Wire Supply & Voltmeters (0.1 V Forward)",
         instruction:
-          "Flip the 1N4007 Diode 180 degrees (Cathode on col 8, Anode on col 13) with DC Supply at 3.0 V.",
+          "Connect Power Supply (+) with a red wire to a3, Power Supply (-) with a black wire to the bottom (-) rail, Voltmeter 1 across R (b3 to b8) for VR, and Voltmeter 2 across Diode (a8 to a13) for Vd. Set supply to 0.1 V.",
         observation:
-          "PDF Table 2 match: Diode blocks current (Id = 0.00 mA) and the full 3.00 V supply voltage drops across the diode.",
+          "At Vdc = 0.1 V (below threshold), Vd ~ 0.10 V and VR = 0.00 V, so Id = VR / R = 0.00 mA.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0.1 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_vd", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "mm_vd", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp2-s5",
+        title: "Step 5: Forward Reading at 0.5 V",
+        instruction:
+          "Set the DC Power Supply to 0.5 V and measure Vd and VR on the two voltmeters.",
+        observation:
+          "Table 1 (0.5 V): Vd ~ 0.42 V (PDF: 0.445 V), VR ~ 0.08 V (PDF: 62.4 mV), Id = VR / 1k ~ 0.08 mA.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0.5 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_vd", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "mm_vd", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp2-s6",
+        title: "Step 6: Forward Reading at 1.0 V",
+        instruction:
+          "Increase DC Power Supply to 1.0 V and record Vd, VR, and Id = VR / R.",
+        observation:
+          "Table 1 (1.0 V): Vd ~ 0.51 V (PDF: 0.512 V), VR ~ 0.50 V (PDF: 0.533 V), Id ~ 0.50 mA.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 1.0 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_vd", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "mm_vd", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp2-s7",
+        title: "Step 7: Forward Reading at 2.0 V",
+        instruction:
+          "Increase DC Power Supply to 2.0 V and measure Vd and VR.",
+        observation:
+          "Table 1 (2.0 V): Vd ~ 0.55 V (PDF: 0.524 V), VR ~ 1.45 V (PDF: 1.428 V), Id ~ 1.45 mA.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 2.0 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_vd", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "mm_vd", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp2-s8",
+        title: "Step 8: Forward Reading at 3.0 V (Table 1)",
+        instruction:
+          "Increase DC Power Supply to 3.0 V to complete Table 1. Notice Vd stays near ~0.6 V while VR (and Id) rises linearly.",
+        observation:
+          "Table 1 (3.0 V): Vd ~ 0.58 V (PDF: 0.602 V), VR ~ 2.42 V (PDF: 2.408 V), Id ~ 2.42 mA.",
         components: [
           BASE_BB,
           { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 3.0 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 298, 0, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_vd", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "mm_vd", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp2-s9",
+        title: "Step 9: Reverse Bias Circuit (0.1 V)",
+        instruction:
+          "Flip the 1N4007 Diode 180 degrees so its Cathode (banded side) faces the 1 kOhm resistor at column 8 and its Anode connects to supply (-) at column 13. Set supply to 0.1 V.",
+        observation:
+          "Table 2 (0.1 V Reverse): Diode blocks current. Vd = 0.10 V, VR = 0.00 V, Id = 0.00 mA.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 0.1 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
           placeOnBB("d1", "diode", 8, 298, 180, { material: "si" }),
         ],
         wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#27272a" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
-          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#78716c" },
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_vd", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "mm_vd", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp2-s10",
+        title: "Step 10: Reverse Reading Sweep up to 3.0 V (Table 2)",
+        instruction:
+          "Click the DC Power Supply and step through 0.5 V, 1.0 V, 2.0 V, and 3.0 V to complete Table 2.",
+        observation:
+          "Table 2 (3.0 V Reverse): Full supply voltage drops across the diode (Vd = 3.00 V) while VR = 0.00 V and Id = 0.00 mA.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 3.0 } },
+          { id: "mm_vr", type: "multimeter", x: 224, y: 40, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vd", type: "multimeter", x: 416, y: 40, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 298, 180, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "e13" }, to: { compId: "bb1", pinId: "bn_13" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#475569" },
+          { id: "w6", from: { compId: "mm_vd", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#4d5d46" },
+          { id: "w7", from: { compId: "mm_vd", pinId: "neg" }, to: { compId: "bb1", pinId: "a13" }, color: "#18181b" },
         ],
       },
     ],
