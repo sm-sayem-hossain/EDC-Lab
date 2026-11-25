@@ -96,9 +96,22 @@ function snapToBreadboardHoles(
   return { x: snap(comp.x), y: snap(comp.y) };
 }
 
-function makeWirePath(x1: number, y1: number, x2: number, y2: number): string {
-  const midY = (y1 + y2) / 2;
-  return `M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+function makeWirePath(x1: number, y1: number, x2: number, y2: number, curveBias = 0): string {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const dist = Math.hypot(dx, dy);
+  if (dist < 1) return `M ${x1} ${y1} L ${x2} ${y2}`;
+
+  // Flexible jumper-wire Bezier curve with gentle natural sag and separation
+  const sag = Math.min(44, Math.max(14, dist * 0.18));
+  const nx = -dy / dist;
+  const ny = dx / dist;
+  const c1x = x1 + dx * 0.28 + nx * curveBias;
+  const c1y = y1 + dy * 0.28 + sag + ny * curveBias;
+  const c2x = x1 + dx * 0.72 + nx * curveBias;
+  const c2y = y1 + dy * 0.72 + sag + ny * curveBias;
+
+  return `M ${x1} ${y1} C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${x2} ${y2}`;
 }
 
 export function CircuitWorkbench() {
@@ -202,8 +215,6 @@ export function CircuitWorkbench() {
       setSelectedCompId(null);
       setSelectedWireId(null);
       setDrawingFrom(null);
-      setPan({ x: 20, y: 12 });
-      setZoom(0.95);
       if (autoSimulate) {
         setSimRunning(true);
       }
@@ -760,15 +771,19 @@ export function CircuitWorkbench() {
             }
           }}
         >
-          {/* Quick Floating Step Switcher Bar on Canvas */}
-          <div className="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-            <div className="pointer-events-auto rounded-full bg-zinc-100/95 backdrop-blur-xs px-3.5 py-1.5 text-[11px] text-zinc-700">
+          {/* Dedicated Non-Overlapping Step Switcher Header */}
+          <div className="px-3 py-2 bg-zinc-50/70 flex flex-wrap items-center justify-between gap-2">
+            <div className="text-[11px] text-zinc-500 px-1">
               {drawingFrom
                 ? "Click another pin or breadboard hole to connect wire (Esc to cancel)"
-                : `Exp ${activeTemplate.number} · ${activeStep.title}`}
+                : simResult?.errors[0]
+                ? simResult.errors[0]
+                : wires.length > 0 && simResult?.warnings[0]
+                ? simResult.warnings[0]
+                : "Drag components to position or click pins to wire"}
             </div>
 
-            <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-zinc-100/95 backdrop-blur-xs p-1">
+            <div className="flex flex-wrap items-center gap-1 rounded-full bg-zinc-100 p-1">
               {activeTemplate.steps.map((s, idx) => (
                 <button
                   key={s.id}
@@ -906,13 +921,14 @@ export function CircuitWorkbench() {
                 })}
 
               {/* Rendered Wires */}
-              {wires.map((w) => {
+              {wires.map((w, wireIdx) => {
                 const cFrom = components.find((c) => c.id === w.from.compId);
                 const cTo = components.find((c) => c.id === w.to.compId);
                 if (!cFrom || !cTo) return null;
                 const p1 = getPinWorldPos(cFrom, w.from.pinId);
                 const p2 = getPinWorldPos(cTo, w.to.pinId);
-                const d = makeWirePath(p1.x, p1.y, p2.x, p2.y);
+                const bias = ((wireIdx % 5) - 2) * 10;
+                const d = makeWirePath(p1.x, p1.y, p2.x, p2.y, bias);
                 const isSelected = w.id === selectedWireId;
 
                 return (
@@ -1059,18 +1075,6 @@ export function CircuitWorkbench() {
                 <Trash2 className="h-3 w-3" />
                 <span>Remove Wire</span>
               </button>
-            </div>
-          )}
-
-          {simResult && simResult.errors.length > 0 && (
-            <div className="absolute top-14 left-3 z-20 max-w-md rounded-2xl bg-zinc-900/90 text-zinc-100 px-4 py-2.5 text-xs">
-              {simResult.errors[0]}
-            </div>
-          )}
-
-          {simResult && simResult.errors.length === 0 && simResult.warnings.length > 0 && (
-            <div className="absolute top-14 left-3 z-20 max-w-md rounded-2xl bg-zinc-100/95 backdrop-blur-xs text-zinc-700 px-4 py-2 text-[11px]">
-              {simResult.warnings[0]}
             </div>
           )}
         </div>
