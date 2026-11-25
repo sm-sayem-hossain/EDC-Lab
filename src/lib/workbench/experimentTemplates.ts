@@ -394,7 +394,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
   },
 
   // =========================================================================
-  // EXP 03: Study of Zener Diode Applications (Matches PDF R=456 Ohm, Vz=8.92V)
+  // EXP 03: Study of Zener Diode Applications (Granular Step-by-Step Build)
   // =========================================================================
   {
     id: "exp-3",
@@ -402,105 +402,231 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
     shortTitle: "Zener Regulator",
     title: "Study of Zener Diode Applications",
     objective:
-      "Wire the reverse-biased 8.9 V Zener diode with R = 456 Ohm on the breadboard to verify breakdown characteristics and load voltage regulation.",
+      "Build the reverse-biased 8.92 V Zener diode circuit step by step on a breadboard with R = 456 Ohm to observe breakdown and voltage regulation.",
     steps: [
       {
         id: "exp3-s1",
-        title: "Step 1: Below Breakdown (Vin = 5.0 V)",
+        title: "Step 1: Gather Components & Instruments",
         instruction:
-          "Place 456 Ohm resistor (col 3-8) and reverse-biased 8.9 V Zener across col 8 to ground rail. Set DC Supply to 5.0 V.",
+          "Place the Breadboard, 456 Ohm Resistor, 8.92 V Zener Diode, DC Power Supply, and two Multimeters (Voltmeters for VR and Vz) on the bench.",
         observation:
-          "PDF Table match: Since Vin (5.0 V) < Vz (8.9 V), Zener blocks reverse current (Iz = 0.00 mA) and Vz follows Vin (5.00 V).",
+          "Preparation complete. Proceed to mount the series resistor on the breadboard.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 5.0 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
-          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
+          { id: "r1", type: "resistor", x: 40, y: 240, rotation: 0, props: { resistance: 456 } },
+          { id: "z1", type: "zener", x: 40, y: 300, rotation: 0, props: { vz: 8.92 } },
         ],
-        wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
-          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-        ],
+        wires: [],
       },
       {
         id: "exp3-s2",
-        title: "Step 2: Zener Breakdown (Vin = 12.0 V)",
+        title: "Step 2: Place 456 Ohm Series Resistor",
         instruction:
-          "Increase DC Power Supply to 12.0 V. The 8.92 V Zener enters reverse breakdown and clamps Vz.",
+          "Insert the 456 Ohm current-limiting resistor horizontally across columns 3 to 8 on row C.",
         observation:
-          "PDF Table match: Voltmeter regulates near ~8.9 V (PDF: 9.06 V) while Ammeter reads Iz ~ 6.7 mA (PDF: 5.94 mA).",
+          "Resistor Terminal 1 is at column 3 and Terminal 2 is at column 8.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 12.0 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
-          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+          { id: "z1", type: "zener", x: 40, y: 300, rotation: 0, props: { vz: 8.92 } },
         ],
-        wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
-          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
-        ],
+        wires: [],
       },
       {
         id: "exp3-s3",
-        title: "Step 3: High Input (Vin = 15.0 V)",
+        title: "Step 3: Mount Reverse-Biased Zener Diode",
         instruction:
-          "Raise DC Power Supply to 15.0 V to confirm Zener voltage stability as input increases.",
+          "Insert the 8.92 V Zener diode vertically at column 8 with Cathode (band) at c8 and Anode at g8. Run a black wire from j8 to the bottom (-) rail.",
         observation:
-          "PDF Table match: Vz holds near ~8.9-9.2 V while Iz rises to ~13 mA (PDF: Vz = 9.23 V, Iz = 12.46 mA).",
+          "Zener Cathode connects to the resistor at column 8; Anode is grounded.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 15.0 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
           placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w4", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w5", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#475569" },
-          { id: "w6", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
         ],
       },
       {
         id: "exp3-s4",
-        title: "Step 4: Loaded Voltage Regulator (with RL)",
+        title: "Step 4: Connect DC Power Supply (5.0 V)",
         instruction:
-          "Connect a 10 kOhm load resistor RL at col 11 in parallel with the Zener diode (PDF Report Question #3).",
+          "Connect DC Supply (+) with a red wire to a3 and DC Supply (-) with a black wire to the bottom (-) rail (bn_1). Set supply to 5.0 V.",
         observation:
-          "Load voltage Vout stays regulated at ~8.9 V across RL while excess input voltage drops across R.",
+          "Power supply is wired cleanly across the series R-Zener loop.",
         components: [
           BASE_BB,
-          { id: "dc1", type: "dc-supply", x: 16, y: 40, rotation: 0, props: { voltage: 15.0 } },
-          { id: "mm_i", type: "multimeter", x: 240, y: 48, rotation: 0, props: { mode: "current" } },
-          { id: "mm_v", type: "multimeter", x: 432, y: 48, rotation: 0, props: { mode: "voltage" } },
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 5.0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_1" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp3-s5",
+        title: "Step 5: Connect Voltmeter 1 Across Resistor (VR)",
+        instruction:
+          "Connect Voltmeter 1 (+) with a red wire to b3 and (-) with a black wire to b8 to measure VR (Iz = VR / 456 Ohm).",
+        observation:
+          "At Vin = 5.0 V (below 8.92 V breakdown), VR reads 0.00 V, meaning Iz = 0 mA.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 5.0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_1" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp3-s6",
+        title: "Step 6: Connect Voltmeter 2 Across Zener (5.0 V)",
+        instruction:
+          "Connect Voltmeter 2 (+) with a red wire to a8 and (-) with a black wire to the ground rail (bn_14).",
+        observation:
+          "Table reading (Vin = 5.0 V): Vz = 5.00 V, VR = 0.00 V, Iz = 0.00 mA (reverse blocking state).",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 5.0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_1" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#18181b" },
+          { id: "w6", from: { compId: "mm_vz", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "mm_vz", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp3-s7",
+        title: "Step 7: Breakdown Threshold (Vin = 9.0 V)",
+        instruction:
+          "Raise DC Power Supply to 9.0 V and observe both voltmeters as the Zener reaches breakdown.",
+        observation:
+          "Table reading (9.0 V): Vz clamps near 8.87 V (PDF: 8.92 V) and VR rises to ~0.13 V (Iz ~ 0.28 mA).",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 9.0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_1" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#18181b" },
+          { id: "w6", from: { compId: "mm_vz", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "mm_vz", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp3-s8",
+        title: "Step 8: Active Regulation (Vin = 12.0 V)",
+        instruction:
+          "Increase DC Power Supply to 12.0 V and check VR and Vz.",
+        observation:
+          "Table reading (12.0 V): Vz remains steady near 8.89 V while VR rises to ~3.11 V (Iz ~ 6.82 mA).",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 12.0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_1" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#18181b" },
+          { id: "w6", from: { compId: "mm_vz", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "mm_vz", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp3-s9",
+        title: "Step 9: High Input (Vin = 15.0 V)",
+        instruction:
+          "Raise DC Power Supply to 15.0 V to complete the Zener I-V table.",
+        observation:
+          "Table reading (15.0 V): Vz holds at ~8.92 V (PDF: 9.23 V) while VR absorbs the increase (~6.08 V, Iz ~ 13.3 mA).",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 15.0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
+          placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_1" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#18181b" },
+          { id: "w6", from: { compId: "mm_vz", pinId: "pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "mm_vz", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
+        ],
+      },
+      {
+        id: "exp3-s10",
+        title: "Step 10: Loaded Voltage Regulator (Add 10 kOhm RL)",
+        instruction:
+          "Place a 10 kOhm load resistor RL vertically at column 11 (`b8 -> b11` red jumper, `j11 -> bn_11` black wire) in parallel with the Zener and measure Vout at a11.",
+        observation:
+          "Even with RL connected, output voltage across the load stays regulated at ~8.92 V.",
+        components: [
+          BASE_BB,
+          { id: "dc1", type: "dc-supply", x: 16, y: 36, rotation: 0, props: { voltage: 15.0 } },
+          { id: "mm_vr", type: "multimeter", x: 256, y: 32, rotation: 0, props: { mode: "voltage" } },
+          { id: "mm_vz", type: "multimeter", x: 604, y: 212, rotation: 0, props: { mode: "voltage" } },
           placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 456 }),
           placeOnBB("z1", "zener", 8, 338, 270, { vz: 8.92 }),
           placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 10000 }),
         ],
         wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "mm_i", pinId: "pos" }, color: "#8c4a3c" },
-          { id: "w2", from: { compId: "mm_i", pinId: "neg" }, to: { compId: "bb1", pinId: "a3" }, color: "#8c4a3c" },
-          { id: "w3", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#4d5d46" },
-          { id: "w4", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#27272a" },
-          { id: "w5", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#27272a" },
-          { id: "w6", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#27272a" },
-          { id: "w7", from: { compId: "mm_v", pinId: "pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#475569" },
-          { id: "w8", from: { compId: "mm_v", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#78716c" },
+          { id: "w1", from: { compId: "bb1", pinId: "j8" }, to: { compId: "bb1", pinId: "bn_8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_1" }, color: "#18181b" },
+          { id: "w4", from: { compId: "mm_vr", pinId: "pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "mm_vr", pinId: "neg" }, to: { compId: "bb1", pinId: "b8" }, color: "#18181b" },
+          { id: "w6", from: { compId: "bb1", pinId: "b8" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w8", from: { compId: "mm_vz", pinId: "pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "mm_vz", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
         ],
       },
     ],
