@@ -1719,14 +1719,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
         ],
       },
-      // --- Step 9: Connect Scope CH1 (+) ---
+      // --- Step 9: Connect Scope CH1 (+) to Input ---
       {
         id: "exp7-s9",
-        title: "Step 9: Connect Oscilloscope CH1 (+) to b3 (Red) - Input Monitor",
+        title: "Step 9: Connect Oscilloscope (+) to Input at b3 (Red)",
         instruction:
-          "Connect Oscilloscope CH1 (+) [Red] to b3 (input node, before capacitor). CH1 will show the original unshifted 10 Vpp square wave.",
+          "Connect Oscilloscope CH1 (+) [Red] to b3 (input node, left of capacitor). We will monitor the input signal first using just 2 oscilloscope wires.",
         observation:
-          "CH1 probe is now on the input. The full square wave will appear on CH1.",
+          "The oscilloscope positive probe is now on the input node.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
@@ -1744,14 +1744,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
         ],
       },
-      // --- Step 10: Connect Scope CH1 (-) ---
+      // --- Step 10: Connect Scope CH1 (-) to Ground --- Positive Clamper Input Reading
       {
         id: "exp7-s10",
-        title: "Step 10: Connect Oscilloscope CH1 (-) to Ground at bn_14 (Black)",
+        title: "Step 10: Connect Oscilloscope (-) to Ground at bn_14 (Black) - Read Input",
         instruction:
-          "Connect Oscilloscope CH1 (-) [Black] to bn_14 (ground rail). CH1 is now fully wired to monitor the input square wave.",
+          "Connect Oscilloscope CH1 (-) [Black] to bn_14 (ground rail). Click 'Open Scope' to observe the input square wave before clamping. Expected: 10 Vpp square wave (-5 V to +5 V).",
         observation:
-          "CH1 is completely wired. It shares the common ground reference.",
+          "Input verified: symmetric 10 Vpp 1 kHz square wave centered around 0 V.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
@@ -1770,14 +1770,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
         ],
       },
-      // --- Step 11: Connect Scope CH2 (+) ---
+      // --- Step 11: Move Scope to Output --- Positive Clamper Output Reading
       {
         id: "exp7-s11",
-        title: "Step 11: Connect Oscilloscope CH2 (+) to a11 (Red) - Output Monitor",
+        title: "Step 11: Move Oscilloscope to Output (a11 / bn_16) - Positive Clamper Reading",
         instruction:
-          "Connect Oscilloscope CH2 (+) [Red] to a11 (top of load resistor, clamper output node). CH2 will show the DC-shifted square wave.",
+          "Move the 2 Oscilloscope wires from the input to the output: connect CH1 (+) [Red] to a11 (top of 100 kOhm load resistor) and CH1 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to read. Expected: Vmin near -0.6 V, Vmax near +9.4 V.",
         observation:
-          "CH2 probe is on the output node. The vertically shifted waveform will appear on CH2.",
+          "PDF Table match for positive clamper: The 10 Vpp square wave shifts upward so its minimum sits near -0.6 V and maximum reaches +9.4 V.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
@@ -1792,47 +1792,18 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
           { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
           { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
-      // --- Step 12: Connect Scope CH2 (-) --- Positive clamper reading
+      // --- Step 12: Flip diode for negative clamper & monitor Input ---
       {
         id: "exp7-s12",
-        title: "Step 12: Connect Oscilloscope CH2 (-) to Ground at bn_16 (Black) - Positive Clamper Reading",
+        title: "Step 12: Flip Diode for Negative Clamper & Monitor Input (b3 / bn_14)",
         instruction:
-          "Connect Oscilloscope CH2 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to read. Expected: Vmin near -0.6 V, Vmax near +9.4 V. Vp-p stays at 10 V but the whole waveform has shifted upward.",
+          "Remove the diode from column 7 and re-insert it reversed: Anode (+) at d7 (top, toward capacitor) and Cathode (-) at g7 (bottom, toward ground). Move the 2 Oscilloscope wires back to the input: CH1 (+) [Red] to b3 and CH1 (-) [Black] to bn_14.",
         observation:
-          "PDF Table match for positive clamper: The square wave is clamped so its minimum touches -0.6 V (one diode drop below ground) and its top rises to +9.4 V.",
-        components: [
-          BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
-          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
-          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
-          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
-        ],
-        wires: [
-          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
-          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
-          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
-          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
-          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
-          { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
-        ],
-      },
-      // --- Step 13: Flip diode for negative clamper ---
-      {
-        id: "exp7-s13",
-        title: "Step 13: Flip Diode for Negative Clamper (Anode at d7, Cathode at g7)",
-        instruction:
-          "Remove the diode from column 7 and re-insert it reversed: Anode (+) at d7 (top, toward capacitor output) and Cathode (-) at g7 (bottom, toward ground). All other wires remain exactly as before.",
-        observation:
-          "The diode now faces upward. This reversal shifts the clamping action to the negative direction.",
+          "The diode is reversed for negative clamping. The input on the scope remains an unshifted 10 Vpp square wave (-5 V to +5 V).",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
@@ -1849,8 +1820,87 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
           { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
           { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
-          { id: "w9", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 13: Move Scope to Output --- Negative Clamper Output Reading
+      {
+        id: "exp7-s13",
+        title: "Step 13: Move Oscilloscope to Output (a11 / bn_16) - Negative Clamper Reading",
+        instruction:
+          "Move the 2 Oscilloscope wires from the input to the output: CH1 (+) [Red] to a11 (load top) and CH1 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to read. Expected: Vmax near +0.6 V, Vmin near -9.4 V.",
+        observation:
+          "The square wave shifts downward without changing shape: Vmax clamps near +0.6 V and Vmin drops to -9.4 V while Vp-p stays 10 V.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 90, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "bb1", pinId: "j7" }, to: { compId: "bb1", pinId: "bn_7" }, color: "#18181b" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 14: Biased Positive Clamper (Add DC Supply +) ---
+      {
+        id: "exp7-s14",
+        title: "Step 14: Biased Positive Clamper - Flip Diode & Connect DC Supply (+)",
+        instruction:
+          "Flip the diode back to Positive Clamper (Cathode at d7, Anode at g7). Remove the ground wire from j7, and connect DC Supply (+) [Red] (+2.0 V) to j7 (diode anode bottom).",
+        observation:
+          "The DC bias source is now connected in series with the diode anode.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j7" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w4", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 15: Biased Positive Clamper (Connect DC Supply -) ---
+      {
+        id: "exp7-s15",
+        title: "Step 15: Connect DC Supply (-) to Ground at bn_6 (Black) - Biased Clamper Reading",
+        instruction:
+          "Connect DC Supply (-) [Black] to bn_6 (ground rail). Keep the 2 Oscilloscope wires on the output (a11 / bn_16). Click 'Open Scope' to read. Expected: Vmin shifts up to +1.4 V and Vmax reaches +11.4 V.",
+        observation:
+          "PDF Fig (b) match: Adding +2.0 V bias shifts the clamped square wave upward by an additional 2 V (Vmin ~ +1.4 V, Vmax ~ +11.4 V, Vp-p = 10 V).",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
+          placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
+          placeOnBB("rl", "resistor", 11, 338, 90, { resistance: 100000 }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "bb1", pinId: "b7" }, to: { compId: "bb1", pinId: "b11" }, color: "#b91c1c" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j7" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
+          { id: "w4", from: { compId: "bb1", pinId: "j11" }, to: { compId: "bb1", pinId: "bn_11" }, color: "#18181b" },
+          { id: "w5", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w7", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "a11" }, color: "#b91c1c" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
     ],
