@@ -1389,14 +1389,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
         ],
       },
-      // --- Step 8: Connect Oscilloscope CH1 (+) ---
+      // --- Step 8: Connect Oscilloscope CH1 (+) to Input ---
       {
         id: "exp6-s8",
-        title: "Step 8: Connect Oscilloscope CH1 (+) to b3 (Red) - Input Monitor",
+        title: "Step 8: Connect Oscilloscope (+) to Input at b3 (Red)",
         instruction:
-          "Connect Oscilloscope CH1 (+) [Red] to b3 (input node, before resistor). CH1 will display the original unclipped triangle waveform.",
+          "Connect Oscilloscope CH1 (+) [Red] to b3 (input node, before resistor). We will monitor the input signal first using just 2 oscilloscope wires.",
         observation:
-          "CH1 probe is now on the input node. The full 19.6 Vpp triangle wave will appear on CH1.",
+          "Oscilloscope positive probe is on the input node.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
@@ -1413,14 +1413,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
         ],
       },
-      // --- Step 9: Connect Oscilloscope CH1 (-) ---
+      // --- Step 9: Connect Oscilloscope CH1 (-) to Ground --- Positive Clipper Input Reading
       {
         id: "exp6-s9",
-        title: "Step 9: Connect Oscilloscope CH1 (-) to Ground at bn_14 (Black)",
+        title: "Step 9: Connect Oscilloscope (-) to Ground at bn_14 (Black) - Read Input",
         instruction:
-          "Connect Oscilloscope CH1 (-) [Black] to bn_14 (ground rail). CH1 is now fully wired to monitor the input.",
+          "Connect Oscilloscope CH1 (-) [Black] to bn_14 (ground rail). Click 'Open Scope' to observe the unclipped input triangle wave. Expected: 19.6 Vpp (-9.8 V to +9.8 V).",
         observation:
-          "CH1 is completely connected. CH1 GND shares the common ground reference.",
+          "Input verified: symmetric 19.6 Vpp 1 kHz triangle wave (+9.8 V to -9.8 V).",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
@@ -1438,14 +1438,14 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
         ],
       },
-      // --- Step 10: Connect Oscilloscope CH2 (+) ---
+      // --- Step 10: Move Oscilloscope to Output --- Positive Clipper Output Reading
       {
         id: "exp6-s10",
-        title: "Step 10: Connect Oscilloscope CH2 (+) to a8 (Red) - Output Monitor",
+        title: "Step 10: Move Oscilloscope to Output (a8 / bn_16) - Positive Clipper Reading",
         instruction:
-          "Connect Oscilloscope CH2 (+) [Red] to a8 (output node, after resistor and at diode anode). CH2 will display the clipped output waveform.",
+          "Move the 2 Oscilloscope wires from the input to the output: CH1 (+) [Red] to a8 (diode anode / output node) and CH1 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to read. Expected: positive peak clipped at +3.0 V, negative peak intact at -9.8 V.",
         observation:
-          "CH2 probe is on the output node. The clipped signal will appear on CH2.",
+          "PDF Table match for positive clipper: Vmax = +3.0 V (2.3 V bias + 0.7 V diode drop), Vmin = -9.8 V, Vp-p ~12.8 V.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
@@ -1459,46 +1459,18 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
           { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
           { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
-      // --- Step 11: Connect Oscilloscope CH2 (-) --- Positive clipper complete
+      // --- Step 11: Flip diode for negative clipper & monitor Input ---
       {
         id: "exp6-s11",
-        title: "Step 11: Connect Oscilloscope CH2 (-) to Ground at bn_16 (Black) - Positive Clipper Reading",
+        title: "Step 11: Flip Diode for Negative Clipper & Read Input (b3 / bn_14)",
         instruction:
-          "Connect Oscilloscope CH2 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to compare CH1 (input) and CH2 (output). Expected: positive peak clipped at +3.0 V, negative peak intact at -9.8 V.",
+          "Remove the diode from column 8 and re-insert it reversed: Cathode (-) at d8 (top, toward resistor) and Anode (+) at g8 (bottom). Set DC Supply to 2.5 V and reverse its wires: DC (-) [Black] to j8 and DC (+) [Red] to bn_6. Move the 2 Oscilloscope wires back to the input: CH1 (+) [Red] to b3 and CH1 (-) [Black] to bn_14.",
         observation:
-          "PDF Table match for positive clipper: Vclip = +3.0 V (2.3 V bias + 0.7 V diode drop). Vp-p output ~12.8 V.",
-        components: [
-          BASE_BB,
-          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
-          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.3 } },
-          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
-          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
-          placeOnBB("d1", "diode", 8, 338, 90, { material: "si" }),
-        ],
-        wires: [
-          { id: "w1", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "j8" }, color: "#b91c1c" },
-          { id: "w2", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
-          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
-          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
-          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
-          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
-        ],
-      },
-      // --- Step 12: Flip diode for negative clipper ---
-      {
-        id: "exp6-s12",
-        title: "Step 12: Flip Diode 180 deg for Negative Clipper (Cathode at d8, Anode at g8)",
-        instruction:
-          "Remove the diode from column 8 and re-insert it reversed: Cathode (-) at d8 (top, toward resistor) and Anode (+) at g8 (bottom). Change DC Supply voltage to 2.5 V. Connect DC Supply (-) [Black] to j8 and DC Supply (+) [Red] to bn_6 (reversed polarity to apply negative bias).",
-        observation:
-          "The diode now faces the opposite direction. Negative half-cycles will now be clipped at -3.2 V.",
+          "The diode and bias are reversed for negative clipping. The input on the scope remains an unclipped 19.6 Vpp triangle wave (+9.8 V to -9.8 V).",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
@@ -1514,18 +1486,41 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
           { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
           { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
-          { id: "w7", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+        ],
+      },
+      // --- Step 12: Move Oscilloscope to Output --- Negative Clipper Output Reading
+      {
+        id: "exp6-s12",
+        title: "Step 12: Move Oscilloscope to Output (a8 / bn_16) - Negative Clipper Reading",
+        instruction:
+          "Move the 2 Oscilloscope wires from the input to the output: CH1 (+) [Red] to a8 (output node) and CH1 (-) [Black] to bn_16 (ground rail). Click 'Open Scope' to read. Expected: negative peak clipped at -3.2 V, positive peak intact at +9.8 V.",
+        observation:
+          "PDF Table match for negative clipper: Vmin = -3.2 V (-2.5 V bias - 0.7 V diode drop), Vmax = +9.8 V, Vp-p ~13.0 V.",
+        components: [
+          BASE_BB,
+          { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "triangle", vpp: 19.6, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.5 } },
+          { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
+          placeOnBB("r1", "resistor", 3, 298, 0, { resistance: 1000 }),
+          placeOnBB("d1", "diode", 8, 338, 270, { material: "si" }),
+        ],
+        wires: [
+          { id: "w1", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "j8" }, color: "#18181b" },
+          { id: "w2", from: { compId: "dc1", pinId: "pos" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#b91c1c" },
+          { id: "w3", from: { compId: "fg1", pinId: "pos" }, to: { compId: "bb1", pinId: "a3" }, color: "#b91c1c" },
+          { id: "w4", from: { compId: "fg1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_2" }, color: "#18181b" },
+          { id: "w5", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w6", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
       // --- Step 13: Dual clipper ---
       {
         id: "exp6-s13",
-        title: "Step 13: Dual Clipper - Add Second Diode at Column 11",
+        title: "Step 13: Dual Clipper (+1.7 V / -4.0 V, Q2)",
         instruction:
-          "Keep D1 in place (Cathode at d8, Anode at g8). Add D2 vertically at column 11 with Anode (+) at d11 and Cathode (-) at g11 (forward orientation). Connect a jumper Red wire from b8 to b11 (linking the two diode nodes). Set FG to 10 Vpp Sine. Connect DC1 (+) [Red] to j8 (bias = +1.0 V) and DC1 (-) [Black] to bn_6.",
+          "Add D2 vertically at column 11 (Cathode at d11, Anode at g11) and flip D1 to Anode up at col 8. Connect Red wire b8 to b11. Set FG to 10 Vpp Sine, DC1 (+1.0 V) to j8/bn_6, and DC2 (-3.3 V) to j11/bn_10. Keep the 2 Oscilloscope wires on the output (a8 / bn_16).",
         observation:
-          "The output node between the two diodes is shared. Positive peaks clip at +1.7 V and negative peaks clip at -3.2 V.",
+          "Positive peaks clip at +1.7 V (1.0 + 0.7 V) and negative peaks clip at -4.0 V (-3.3 - 0.7 V).",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "sine", vpp: 10, freq: 1000 } },
@@ -1544,10 +1539,8 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
           { id: "w5", from: { compId: "dc1", pinId: "neg" }, to: { compId: "bb1", pinId: "bn_6" }, color: "#18181b" },
           { id: "w6", from: { compId: "dc2", pinId: "neg" }, to: { compId: "bb1", pinId: "j11" }, color: "#18181b" },
           { id: "w7", from: { compId: "dc2", pinId: "pos" }, to: { compId: "bb1", pinId: "bn_10" }, color: "#b91c1c" },
-          { id: "w8", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "b3" }, color: "#b91c1c" },
-          { id: "w9", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_14" }, color: "#18181b" },
-          { id: "w10", from: { compId: "sc1", pinId: "ch2_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
-          { id: "w11", from: { compId: "sc1", pinId: "ch2_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
+          { id: "w8", from: { compId: "sc1", pinId: "ch1_pos" }, to: { compId: "bb1", pinId: "a8" }, color: "#b91c1c" },
+          { id: "w9", from: { compId: "sc1", pinId: "ch1_neg" }, to: { compId: "bb1", pinId: "bn_16" }, color: "#18181b" },
         ],
       },
     ],
@@ -1569,12 +1562,13 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         id: "exp7-s1",
         title: "Step 1: Gather Components and Instruments",
         instruction:
-          "Gather: 1 x 0.1 uF capacitor, 1 x 1N4007 diode, 1 x 100 kOhm resistor, 1 x Function Generator, 1 x Oscilloscope, and connecting wires.",
+          "Gather: 1 x 0.1 uF capacitor, 1 x 1N4007 diode, 1 x 100 kOhm resistor, 1 x Function Generator, 1 x DC power supply, 1 x Oscilloscope, and connecting wires.",
         observation:
           "All components are ready. The breadboard is empty.",
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
         ],
         wires: [],
@@ -1590,6 +1584,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
         ],
@@ -1606,6 +1601,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1623,6 +1619,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1641,6 +1638,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1661,6 +1659,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1683,6 +1682,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1706,6 +1706,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1730,6 +1731,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1755,6 +1757,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1781,6 +1784,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 270, { material: "si" }),
@@ -1807,6 +1811,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 90, { material: "si" }),
@@ -1833,6 +1838,7 @@ export const EXPERIMENT_TEMPLATES: ExperimentTemplate[] = [
         components: [
           BASE_BB,
           { id: "fg1", type: "func-gen", x: 16, y: 24, rotation: 0, props: { waveform: "square", vpp: 10, freq: 1000 } },
+          { id: "dc1", type: "dc-supply", x: 248, y: 38, rotation: 0, props: { voltage: 2.0 } },
           { id: "sc1", type: "oscilloscope", x: 616, y: 24, rotation: 0, props: {} },
           placeOnBB("c1", "capacitor", 3, 298, 0, { capacitance: 0.1 }),
           placeOnBB("d1", "diode", 7, 338, 90, { material: "si" }),

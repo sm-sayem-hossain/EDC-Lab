@@ -21,11 +21,11 @@ interface ScopeDrawerProps {
 
 interface LoggedScopeRow {
   id: string;
-  ch1Vpp: number;
-  ch2Vmax: number;
-  ch2Vmin: number;
-  ch2Vpp: number;
-  ch2Vavg: number;
+  label: string;
+  vpp: number;
+  vmax: number;
+  vmin: number;
+  vavg: number;
   ripple: number;
 }
 
@@ -33,17 +33,22 @@ export function ScopeDrawer({ scopeData, onClose }: ScopeDrawerProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [rows, setRows] = useState<LoggedScopeRow[]>([]);
 
+  const ch2Active =
+    scopeData.ch2.vpp > 0 || scopeData.ch2.vmax !== 0 || scopeData.ch2.vmin !== 0;
+
   const handleRecord = () => {
+    const src = ch2Active ? scopeData.ch2 : scopeData.ch1;
+    const label = ch2Active ? "CH2" : "CH1";
     setRows((prev) => [
       ...prev,
       {
         id: `${Date.now()}`,
-        ch1Vpp: scopeData.ch1.vpp,
-        ch2Vmax: scopeData.ch2.vmax,
-        ch2Vmin: scopeData.ch2.vmin,
-        ch2Vpp: scopeData.ch2.vpp,
-        ch2Vavg: scopeData.ch2.vavg,
-        ripple: scopeData.ch2.rippleFactor,
+        label,
+        vpp: src.vpp,
+        vmax: src.vmax,
+        vmin: src.vmin,
+        vavg: src.vavg,
+        ripple: ch2Active ? scopeData.ch2.rippleFactor : 0,
       },
     ]);
   };
@@ -122,48 +127,69 @@ export function ScopeDrawer({ scopeData, onClose }: ScopeDrawerProps) {
                   type="monotone"
                   dataKey="ch1"
                   name="CH1 (V)"
-                  stroke="#a1a1aa"
-                  strokeWidth={1.75}
+                  stroke={ch2Active ? "#a1a1aa" : "#18181b"}
+                  strokeWidth={ch2Active ? 1.75 : 2.2}
                   dot={false}
                   isAnimationActive={false}
                 />
-                <Line
-                  type="monotone"
-                  dataKey="ch2"
-                  name="CH2 (V)"
-                  stroke="#18181b"
-                  strokeWidth={2.2}
-                  dot={false}
-                  isAnimationActive={false}
-                />
+                {ch2Active && (
+                  <Line
+                    type="monotone"
+                    dataKey="ch2"
+                    name="CH2 (V)"
+                    stroke="#18181b"
+                    strokeWidth={2.2}
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div className="lg:col-span-4 flex flex-col justify-between gap-3">
             <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-2xl bg-zinc-50 p-3">
-                <div className="text-[10px] text-zinc-500">CH1 Vp-p</div>
-                <div className="text-sm font-mono font-semibold text-zinc-900">
-                  {scopeData.ch1.vpp} V
+              <div className="rounded-2xl bg-zinc-50 p-2.5 space-y-1.5">
+                <div className="text-[10px] font-semibold text-zinc-500">CH1</div>
+                <div>
+                  <div className="text-[10px] text-zinc-500">Vp-p</div>
+                  <div className="text-sm font-mono font-semibold text-zinc-900">
+                    {scopeData.ch1.vpp} V
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-zinc-500">Vmax / Vmin</div>
+                  <div className="text-xs font-mono font-semibold text-zinc-900">
+                    {scopeData.ch1.vmax} / {scopeData.ch1.vmin} V
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-zinc-500">Vavg / Vrms</div>
+                  <div className="text-xs font-mono font-semibold text-zinc-900">
+                    {scopeData.ch1.vavg} / {scopeData.ch1.vrms} V
+                  </div>
                 </div>
               </div>
-              <div className="rounded-2xl bg-zinc-50 p-3">
-                <div className="text-[10px] text-zinc-500">CH2 Vp-p</div>
-                <div className="text-sm font-mono font-semibold text-zinc-900">
-                  {scopeData.ch2.vpp} V
+
+              <div className="rounded-2xl bg-zinc-50 p-2.5 space-y-1.5">
+                <div className="text-[10px] font-semibold text-zinc-500">CH2</div>
+                <div>
+                  <div className="text-[10px] text-zinc-500">Vp-p</div>
+                  <div className="text-sm font-mono font-semibold text-zinc-900">
+                    {scopeData.ch2.vpp} V
+                  </div>
                 </div>
-              </div>
-              <div className="rounded-2xl bg-zinc-50 p-3">
-                <div className="text-[10px] text-zinc-500">CH2 Vmax / Vmin</div>
-                <div className="text-xs font-mono font-semibold text-zinc-900">
-                  {scopeData.ch2.vmax} / {scopeData.ch2.vmin} V
+                <div>
+                  <div className="text-[10px] text-zinc-500">Vmax / Vmin</div>
+                  <div className="text-xs font-mono font-semibold text-zinc-900">
+                    {scopeData.ch2.vmax} / {scopeData.ch2.vmin} V
+                  </div>
                 </div>
-              </div>
-              <div className="rounded-2xl bg-zinc-50 p-3">
-                <div className="text-[10px] text-zinc-500">CH2 Vavg / Ripple</div>
-                <div className="text-xs font-mono font-semibold text-zinc-900">
-                  {scopeData.ch2.vavg} V · {scopeData.ch2.rippleFactor}
+                <div>
+                  <div className="text-[10px] text-zinc-500">Vavg / Ripple</div>
+                  <div className="text-xs font-mono font-semibold text-zinc-900">
+                    {scopeData.ch2.vavg} V · {scopeData.ch2.rippleFactor}
+                  </div>
                 </div>
               </div>
             </div>
@@ -186,9 +212,9 @@ export function ScopeDrawer({ scopeData, onClose }: ScopeDrawerProps) {
                 <div className="space-y-1 text-[10px] font-mono text-zinc-700">
                   {rows.map((r, i) => (
                     <div key={r.id} className="flex justify-between">
-                      <span>#{i + 1}</span>
+                      <span>#{i + 1} ({r.label})</span>
                       <span>
-                        Max {r.ch2Vmax}V · Min {r.ch2Vmin}V · Avg {r.ch2Vavg}V · r {r.ripple}
+                        Vpp {r.vpp}V · Max {r.vmax}V · Min {r.vmin}V · Avg {r.vavg}V
                       </span>
                     </div>
                   ))}
